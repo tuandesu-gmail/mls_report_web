@@ -1,0 +1,65 @@
+﻿<div class="modal-header">
+    <h4 class="modal-title" id="modal-title">{{$ctrl.title}}</h4>
+</div>
+<div class="modal-body" id="modal-body">
+    <input type="text" class="ms-spellcheck-true ms-floatLeft max-width uppercase" ng-model="$ctrl.lookup" ng-keydown="$ctrl.lookupKey($event)" />
+    <span class="search-in-textbox" ng-click="$ctrl.search()"><img src="/Images/magnifying-glass-search.png" /></span>
+
+    <div class="panel" ng-class="{height100: $ctrl.showDetail}">
+        <table st-table="$ctrl.displayedCollection" st-safe-src="$ctrl.rowCollection" class="hovertable table-hover" width="100%" class="grid" arrowselector>
+            <colgroup>
+                <col width="5%" />
+                <col width="30%" />
+                <col ng-show="$ctrl.showDVT" width="5%" />
+            </colgroup>
+            <thead>
+                <tr>
+                    <th class="text-center" style="width: 10px;">Mã</th>
+                    <th class="text-center" style="width: 60px;">Tên</th>
+                    <th ng-show="$ctrl.showDVT" class="text-center" style="width: 10px;">Đvt</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="row in $ctrl.displayedCollection track by $index" tabindex="{{$index + 1}}" ng-click="$ctrl.setSelected($index)" ng-dblclick="$ctrl.choiceSelected($index)" ng-class="{selected: $index === $ctrl.selected, success: $index === $ctrl.selected}">
+                    <!--<td class="text-left" ng-if="$ctrl.showDetail"><a href="#" ng-click="$ctrl.detail(row.MA_CODE)">{{row.MA_CODE}}</a></td>-->
+                    <td class="text-left">{{row.MA_CODE}}</td>
+                    <td class="text-left">{{row.TEN_CODE}}</td>
+                    <td ng-show="$ctrl.showDVT" class="text-center">{{row.DVT}}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="panel height100" ng-if="$ctrl.showDetail">
+        <table st-table="$ctrl.displayedCollectionDetail" st-safe-src="$ctrl.rowCollectionDetail" class="hovertable table-hover" width="100%" class="grid" arrowselector>
+            <colgroup>
+                <col width="5%" />
+                <col width="30%" />
+                <col width="5%" />
+                <col width="5%" />
+                <col width="5%" />
+            </colgroup>
+            <thead>
+                <tr>
+                    <th class="text-center" style="width: 10px;">Mã</th>
+                    <th class="text-center" style="width: 60px;">Tên</th>
+                    <th class="text-center" style="width: 10px;">Đvt</th>
+                    <th class="text-center" style="width: 10px;">Số lượng</th>
+                    <th class="text-center" style="width: 10px;">Đơn giá</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="row in $ctrl.displayedCollectionDetail track by $index" tabindex="{{$index + 1}}">
+                    <td class="text-left">{{row.MA_VT}}</td>
+                    <td class="text-left">{{row.TEN_VT}}</td>
+                    <td class="text-center">{{row.DVT}}</td>
+                    <td class="text-right">{{row.SO_LUONG0 | number}}</td>
+                    <td class="text-right">{{row.GIA | number}}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+<div class="modal-footer">
+    <button type="button" class="ms-ButtonHeightWidth width80" ng-click="$ctrl.ok()">Chọn</button>
+    <button type="button" class="ms-ButtonHeightWidth width80" ng-click="$ctrl.cancel()">Hủy</button>
+</div>

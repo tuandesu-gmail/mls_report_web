@@ -1,0 +1,169 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>AngularJS</title>
+    <meta charset="utf-8">
+    <link href="Content/kendo.common.min.css" rel="stylesheet">
+    <link href="Content/kendo.default.min.css" rel="stylesheet">
+    <link href="Content/kendo.default.mobile.min.css" rel="stylesheet">
+    <script src="Scripts/jquery-1.10.2.js"></script>
+    <script src="Scripts/angular.js"></script>
+    <script src="Scripts/kendo.all.min.js"></script>
+   
+</head>
+<body>
+    <a class="offline-button" href="../index.html">Back</a>
+
+    <div id="example" ng-app="KendoDemos">
+        <div ng-controller="MyCtrl">
+            <input type="button" value="Refresh" ng-click="refresh()" />
+            <kendo-grid options="mainGridOptions" style="height: 80vh;" id="grid">
+            </kendo-grid>
+        </div>
+    </div>
+    <style>
+        .k-grid .k-alt {
+            background-color: #f1f1f1;
+        }
+
+        .k-grid tr td {
+            border-left: 1px solid #d0d0d0;
+            border-bottom: 1px solid #d0d0d0;
+        }
+
+        .k-grid-header th.k-header {
+            background: #f0f0f0;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .k-grid > table > tbody > tr:hover,
+        .k-grid-content > table > tbody > tr:hover,
+        .k-grid-content-locked > table > tbody > tr:hover {
+            background: #E8E8E8;
+            -webkit-transition-duration: 0.3s;
+            transition-duration: 0.3s;
+            -webkit-transition-property: background-color;
+            transition-property: background-color;
+        }
+
+        .bold {
+            font-weight: bold;
+        }
+    </style>
+    <script>
+        angular.module("KendoDemos", ["kendo.directives"])
+            .controller("MyCtrl", function ($scope) {
+                $scope.mainGridOptions = {
+                    dataSource: {
+                        transport: {
+                            read: "http://localhost:5000/Home/Test",
+                            dataType: "json",
+                        },
+                    },
+                    sortable: false,
+                    dataBound: function () {
+                        //this.expandRow(this.tbody.find("tr.k-master-row").first());
+                    },
+                    columns: [{
+                        field: "FirstName",
+                        title: "First Name",
+                        locked: true,
+                        width: "120px"
+                    }, {
+                        field: "LastName",
+                        title: "Last Name",
+                        width: "120px"
+                    }, {
+                        field: "Country",
+                        width: "120px"
+                    }, {
+                        field: "Country",
+                        width: "120px"
+                    }, {
+                        field: "Country",
+                        width: "120px"
+                    }, {
+                        field: "Country",
+                        width: "120px"
+                    }, {
+                        field: "Country",
+                        width: "120px"
+                    }, {
+                        field: "Country",
+                        width: "120px"
+                    }, {
+                        field: "Country",
+                        width: "120px"
+                    }, {
+                        field: "Country",
+                        width: "120px"
+                    }, {
+                        field: "Country",
+                        width: "120px"
+                    }, {
+                        field: "Country",
+                        width: "120px"
+                    }, {
+                        field: "City",
+                        width: "120px"
+                    }, {
+                        field: "Title",
+                    }, {
+                        field: "Bold",
+                    }],
+                    dataBound: function (e) {
+                        debugger;
+                        var dataItems = e.sender.dataSource.view();
+                        for (var j = 0; j < dataItems.length; j++) {
+                            var bold = dataItems[j].Bold;
+
+                            if (bold) {
+                                var row = e.sender.tbody.find("[data-uid='" + dataItems[j].uid + "']");
+                                row.addClass("bold");
+
+                                row = e.sender.lockedContent.find("[data-uid='" + dataItems[j].uid + "']");
+                                row.addClass("bold");
+                            }
+                        }
+                    }
+                };
+
+                $scope.refresh = function () {
+                    //$scope.mainGridOptions.refresh();
+                    //alert(0);
+                    //$("#grid").data('kendoGrid').refresh();
+                    var grid = angular.element('#grid');
+                    grid.data('kendoGrid').dataSource.read();
+                    grid.data('kendoGrid').refresh();
+                    //$scope.mainGridOptions.dataSource.transport.read();
+                }
+
+                $scope.detailGridOptions = function (dataItem) {
+                    return {
+                        dataSource: {
+                            type: "odata",
+                            transport: {
+                                read: "https://demos.telerik.com/kendo-ui/service/Northwind.svc/Orders"
+                            },
+                            serverPaging: true,
+                            serverSorting: true,
+                            serverFiltering: true,
+                            pageSize: 5,
+                            filter: { field: "EmployeeID", operator: "eq", value: dataItem.EmployeeID }
+                        },
+                        scrollable: false,
+                        sortable: true,
+                        pageable: true,
+                        columns: [
+                            { field: "OrderID", title: "ID", width: "56px" },
+                            { field: "ShipCountry", title: "Ship Country", width: "110px" },
+                            { field: "ShipAddress", title: "Ship Address" },
+                            { field: "ShipName", title: "Ship Name", width: "190px" }
+                        ]
+                    };
+                };
+            })
+    </script>
+</body>
+</html>

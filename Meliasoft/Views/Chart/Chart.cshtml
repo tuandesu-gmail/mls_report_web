@@ -1,0 +1,457 @@
+﻿@using Microsoft.AspNet.Identity
+@{
+    ViewBag.Title = "Report's Chart";
+}
+
+<style>
+    .bold {
+        font-weight: bold;
+    }
+
+    .datepicker {
+        float: left;
+    }
+
+    .date-picker {
+        margin-left: -42px;
+    }
+
+    html,
+    body {
+        height: 100%;
+        width: 100%;
+    }
+
+    #myChart {
+        height: 100%;
+        width: 100%;
+        min-height: 150px;
+    }
+
+    #myChart2 {
+        height: 100%;
+        width: 100%;
+        min-height: 150px;
+    }
+
+    #myChart4 {
+        height: 100%;
+        width: 100%;
+        min-height: 150px;
+    }
+
+    #myChart5 {
+        height: 100%;
+        width: 100%;
+        min-height: 150px;
+    }
+
+    .zc-ref {
+        display: none;
+    }
+
+    zing-grid[loading] {
+        height: 450px;
+    }
+
+
+    /* Dropdown Button ----------------------------------- */
+    .dropbtn {
+        background-color: transparent;
+        color: white;
+        padding-top: 5px;
+        padding-bottom: 5px;
+        padding-left: 10px;
+        padding-right: 10px;
+        font-size: 16px;
+        border: none;
+        margin-left: 0px;
+    }
+
+    /* The container <div> - needed to position the dropdown content */
+    .dropdown {
+        position: relative;
+        display: inline-block;
+    }
+
+    /* Dropdown Content (Hidden by Default) */
+    .dropdown-content {
+        display: none;
+        position: absolute;
+        background-color: #A3F7A6;
+        min-width: 160px;
+        box-shadow: 0px 5px 10px 0px rgba(0,0,0,0.2);
+        z-index: 1;
+        margin-left:0px;
+    }
+
+        /* Links inside the dropdown */
+        .dropdown-content a {
+            color: black;
+            padding: 8px 10px;
+            text-decoration: none;
+            display: block;
+        }
+
+            /* Change color of dropdown links on hover */
+            .dropdown-content a:hover {
+                background-color: #F1DA5F;
+            }
+
+    /* Show the dropdown menu on hover */
+    .dropdown:hover .dropdown-content {
+        display: block;
+    }
+
+    /* Change the background color of the dropdown button when the dropdown content is shown */
+    .dropdown:hover .dropbtn {
+        background-color: #88E88C;
+    }
+
+    .white-div {
+        width: 100%;
+        height: 20px;
+        position: relative;
+        margin-top: -20px;
+        bottom: 0;
+        right: 0;
+        /*background: red;*/
+        z-index: 9999;
+    }
+
+    .im_loading {
+        /*display: none;*/
+        position: fixed;
+        top: 40%;
+        left: 45%;
+        margin: 0px 0px 0px 0px;
+        /*background: #fff url(Content/Default/loading.gif) no-repeat center center;*/
+        /*width: 70px;
+        height: 70px;*/
+        z-index: 9999;
+        /*-moz-border-radius: 10px;
+        -webkit-border-radius: 10px;
+        border-radius: 10px;*/
+        /*-moz-box-shadow: 1px 1px 3px #000;
+        -webkit-box-shadow: 1px 1px 3px #000;
+        box-shadow: 1px 1px 3px #000;*/
+        opacity: 0.7;
+        filter: progid:DXImageTransform.Microsoft.Alpha(opacity=70);
+    }
+
+</style>
+<script src="https://code.responsivevoice.org/responsivevoice.js?key=e7b1ijP7"></script>
+
+<div ng-controller="chartCtrl">
+    <div class="main-content">
+        <div class="cms-messages"></div>
+        <div class="flyout-left">
+            <div class="flyout-left-inner">
+                <img class="logo-panel" src="~/Images/logo.png" alt="MeliaSoft">
+
+                @*<div ng-repeat="chart in charts">
+                        <a href="/Report?id={{chart.Id}}" ng-repeat="chart in charts">
+                            {{chart.Name}}
+                        </a>
+                    </div>*@
+
+                <a href="/Report?id={{menu.Id}}" ng-repeat="menu in menus">{{menu.Name}}</a>
+
+            </div>
+        </div>
+        <div class="flyout-right">
+            @if (Request.IsAuthenticated)
+            {
+                using (Html.BeginForm("LogOff", "Account", FormMethod.Post, new { id = "logoutForm", @class = "flyout-right-inner" }))
+                {
+                    <h1>Hello @User.Identity.GetUserName() !</h1>
+                    @Html.ActionLink("Đổi mật khẩu", "ChangePassword", "Account");
+                    <a href="javascript:document.getElementById('logoutForm').submit()">Log off</a>
+                }
+            }
+        </div>
+        <div class="rpt-header-white" id="rptHeaderDiv">
+          <span class="logo-wrapper-new">
+            <a id="lnkBackBtn" style="visibility: hidden;" href="javascript: window.close();">
+              <img class="logo" id="imgBackBtn" src="~/Images/back_btn.png" style="width:0px; margin-right: 9px;" alt="Back">
+            </a>
+            <span class="lines">
+              <span class="line"></span>
+              <span class="line2"></span>
+              @*<span class="line"></span>*@
+            </span>
+            @*<a id="lnkLogo" style="visibility: hidden;" href="/Report/Home"><img id="imgLogo" class="logo" style="margin-left: 10px; margin-right: 10px" src="~/Images/logo.png" alt="Meliasoft"></a>*@
+          </span>
+          <span class="option-wrapper">
+            <span class="lines">
+              <span class="line"></span>
+              <span class="line"></span>
+              <span class="line"></span>
+            </span>
+          </span>
+          @*<span class="rpt-name">@ViewData["ReportTitle"]</span>*@
+        </div>
+        @*<div class="report-pane">
+                <div class="report-header">
+                    <table style="width: 100%">
+                        <tbody>
+                            <tr>
+                                <td >
+                                    <span class="company-name">@ViewData["CompanyName"]</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <h1><a href='/Report?id=@ViewData["ReportId"]' style="margin-left:20px; margin-right:15px;"><span>@ViewData["ReportTitle"]</span></a></h1>
+                                </td>
+
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="clearfix"></div>
+                </div>
+            </div>*@
+    </div>
+    @*<div>charts.rows.count = {{charts.rows.count}}</div>*@
+
+
+    <div class="im_loading" ng-show="waiting" ng-if="waiting">
+        <img src="~/Content/Default/loading.gif" />
+    </div>
+    <div style="margin-left: 20px; margin-right: 20px; margin-top: 5px; margin-bottom: 35px; font-size: 12pt; ">
+        <div ng-repeat="chart in charts">
+            <hr />
+            <p style="margin-left: 0px !important; margin-bottom: 10px !important; font-weight:bold !important;">
+
+
+                <div class="dropdown">
+                    <button class="dropbtn">
+                        <img src="~/Images/more_icon_24.png" alt="Customize Chart" height="20" width="20">
+                    </button>
+                    <div class="dropdown-content">
+                        @*<a href="/Chart/ChartColumns?chart_id={{chart.Id}}&report_id={{chart.ReportId}}">Select Columns...</a>
+                    <a href="/Chart/ChartRows?chart_id={{chart.Id}}&report_id={{chart.ReportId}}">Select Rows...</a>*@
+                        <a href="/Chart/ChartCustomize?chart_id={{chart.Id}}&report_id={{chart.ReportId}}">Cấu hình biểu đồ...</a>
+                    </div>
+                    @*<a href="{{url}}?id={{chart.ReportId}}" style="color: green !important;"> Biểu đồ:  {{chart.Title}} </a>*@
+                </div>
+                <span class="message-refresh" style="display: inline-block; float: right;">
+                    <a href='#' id="{{chart.RowNumber}}" style="margin-right:15px; padding-top:3px;" onclick="translateToVoice(this); return false;">
+                        <img class="update-down" height="32" width="32" src="~/Images/speaker_green_32x32.png" />
+                    </a>
+                </span>
+            </p>
+            <div id='myChart{{chart.RowNumber}}' style="height:460px; width: 100%; min-height: 350px;"></div>
+            @*<input id="hiddenChartId" type="hidden" ng-model="ChartId" value="{{chart.Id}}" />*@
+            <input type="hidden" id="hiddenChartId{{chart.RowNumber}}" ng-model="ChartId4" value="{{chart.ChartConfig}}" />
+            <input type="hidden" id="hiddenVoiceMsg{{chart.RowNumber}}" value="{{chart.VoiceMsg}}" />
+            <div class="white-div">
+                <table style="width: 100%">
+                    <tbody>
+                        <tr>
+                            <td />
+                            <td style="width: 130px; height: 20px; background: white;" />
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div id="chartNotExisting" style="margin-left: 20px; margin-right: 20px; margin-top: 5px; margin-bottom: 0px; font-size: 16pt; color: red;  visibility:hidden;">
+        <span>Chưa có biểu đồ!</span><br /><br />
+        <a href="/Chart/ChartCustomize?chart_id=0&report_id=@ViewData["ReportId"]">Bạn muốn thêm mới biểu đồ? Click vào đây...</a>
+    </div>
+    @*<div id="chartAddNewDiv"  style="margin-left: 20px; margin-right: 20px; margin-top: 5px; margin-bottom: 50px; font-size: 12pt;  visibility:hidden;">
+            <a href="/Chart/ChartCustomize?chart_id=0&report_id=@ViewData["ReportId"]">● Bạn muốn thêm mới biểu đồ? Click vào đây...</a>
+        </div>*@
+    
+</div>
+  
+
+
+    @*<div id='myChart'><a class="zc-ref" href="https://www.zingchart.com/">Charts by ZingChart</a></div>
+        <div id='myChart2'><a class="zc-ref" href="https://www.zingchart.com/">Charts by ZingChart</a></div>
+        <div id='myChart3'><a class="zc-ref" href="https://www.zingchart.com/">Charts by ZingChart</a></div>*@
+
+
+<script src="~/Scripts/Assets/chart.js"></script>
+
+<script type="text/javascript">
+  showBackButton();
+
+    var url = baseUrl + 'Chart';
+    var chart_id = @ViewData["ChartId"];
+    var report_id = @ViewData["ReportId"];
+
+    $(function () {
+        $(".flyout-left").click(function (e) {
+            if ($(e.target).hasClass("flyout-left"))
+                $(this).removeClass('active');
+        });
+        $(".rpt-header-white .logo-wrapper-new .lines").click(function () {
+            $('.flyout-left').addClass('active');
+        });
+        $(".flyout-right").click(function (e) {
+            if ($(e.target).hasClass("flyout-right"))
+                $(this).removeClass('active');
+        });
+        $(".rpt-header-white .option-wrapper .lines").click(function () {
+            $('.flyout-right').addClass('active');
+        });
+    })
+
+    /**
+     * Show Chart Customize
+     */
+    function ShowChartCustomize(chartId, reportId) {
+        alert("chartId = " + chartId + ", reportId = " + reportId);
+        var strHtml = '';
+        strHtml += 'Show Chart Customize';
+        $("#dialog-custom").html(strHtml);
+        $("#dialog-custom").dialog({
+            resizable: false,
+            width: 500,
+            height: 300,
+            modal: true,
+            buttons: {
+                'OK': function () {
+
+                    //CheckUpdate(2);
+                    $(this).dialog("close");
+
+                    return false;
+                },
+                'Cancel': function () {
+                    $(this).dialog("close");
+                    return false;
+                }
+            }
+        });
+    }
+
+    //var $hiddenChartId = $('#hiddenChartId1');
+    //$hiddenChartId.on('change', showChart);
+    //document.getElementById("imgSaveButton").style.visibility = "visible";
+
+    //if ({{ charts.rows.count }} == 0) {
+
+    //}
+
+    setTimeout(function () { showChart() }, 1000);
+
+    function showChart() {
+
+        for (var i = 1; i <= 10; i++) {
+
+            var hiddenChartValue = $('#hiddenChartId' + i).val();
+            if (hiddenChartValue != undefined && hiddenChartValue != null) {
+                //gui:{ contextMenu : { empty : true}}, 
+                hiddenChartValue = '{ "gui":{ "contextMenu" : { "empty" : "true"}}, "graphset": [' + hiddenChartValue + ']}';
+                var jsonData = JSON.parse(hiddenChartValue);
+
+                zingchart.render({
+                    id: 'myChart' + i,
+                    data: jsonData,
+                    height: '100%',
+                    width: '100%'
+                });
+            } else {
+                if (i == 1) {
+                    //alert('setTimeout(function () { showChart() }, 1000);');
+                    setTimeout(function () { showChart() }, 1000);
+                }
+                break;
+            }
+        }
+    }
+
+    function GoogleSays(m) {
+        var msg = new SpeechSynthesisUtterance();
+        var voices = window.speechSynthesis.getVoices();
+        console.log(voices);
+        //msg.voice = voices[10];
+        //msg.voiceURI = "native";
+        msg.volume = 1;
+        msg.rate = 1;
+        msg.pitch = 0.8;
+        msg.text = m;
+        msg.lang = 'vi-VN';
+        window.speechSynthesis.speak(msg);
+
+        //-----------------------------------------
+        //var lang = 'vi-VN';
+        //var msg = new SpeechSynthesisUtterance();
+        //var voices = window.speechSynthesis.getVoices();
+        //msg.voice = voices.filter(voice => voice.lang == lang)[2];
+        //msg.text = m; //'Hệ thống đã khởi động, chào mừng Hiệp quay trở lại';
+        //msg.lang = lang;
+        //window.speechSynthesis.speak(msg);
+    }
+
+    function translateToVoice(obj) {
+        //alert(obj.getAttribute("id"));
+        var linkId = obj.getAttribute("id");
+        var msg = 'Nội dung báo cáo chưa có, vui lòng liên hệ với Meliasoft để được hỗ trợ.';
+
+        var hiddenChartVoiceMsgValue = $('#hiddenVoiceMsg' + linkId).val();
+        if (hiddenChartVoiceMsgValue != undefined && hiddenChartVoiceMsgValue != null) {
+            msg = hiddenChartVoiceMsgValue;
+            //alert(msg);
+        }
+
+        var isChromium = window.chrome;
+        if (isChromium) {
+            //alert("Google Says");
+            GoogleSays(msg);
+        } else {
+            //alert("ResponsiveVoice Says");
+            responsiveVoice.speak(msg, 'Vietnamese Female'); //'Xin chào các bạn, tôi đang nói những lời đơn giản nhất, các bạn có nghe rõ không?!'
+        }
+        //var audio = new Audio();
+        //audio.src = 'http://translate.google.com/translate_tts?ie=utf-8&tl=vi&q=' + msg;
+        //audio.play();
+  }
+
+  function showBackButton() {
+    //const url = new URL("https://sdkapp.example.com:8443/central-login/index.html?client_id=dtvClient&redirect_uri=https://www.example3.com:443/callback"); // for example
+    //var url = window.location.href;
+    //var split = url.split("username=");
+    var linkBack = document.getElementById('lnkBackBtn');
+    var imgBack = document.getElementById('imgBackBtn');
+    //var linkLogo = document.getElementById('lnkLogo');
+    //var imgLogo = document.getElementById('imgLogo');
+
+
+    var rptHeaderDiv = document.getElementById('rptHeaderDiv');
+
+    var webai = localStorage.getItem("webai");
+
+    console.log("webai = " + webai);
+    if (webai == 'yes') {
+      console.log("url includes username");
+      linkBack.style.visibility = 'visible';
+      //linkLogo.style.visibility = 'hidden';
+      //width: 0px;
+      imgBack.style.width = '30px';
+      imgBack.style.height = '22px';
+      //imgLogo.style.width = '0px';
+
+      rptHeaderDiv.style.backgroundColor = 'white';
+
+      //$('logo-wrapper:after').css('display', 'none');
+      //$('logo-wrapper').addClass('no-after'); 
+      //$('.logo-wrapper-new:after').css('display', 'none');
+    } else {
+      console.log("url dont include username");
+      //lnkLogo
+      linkBack.style.visibility = 'hidden';
+      //linkLogo.style.visibility = 'visible';
+
+      imgBack.style.width = '0px';
+      //imgLogo.style.width = '150px';
+
+      rptHeaderDiv.style.backgroundColor = 'white';
+    }
+
+</script>

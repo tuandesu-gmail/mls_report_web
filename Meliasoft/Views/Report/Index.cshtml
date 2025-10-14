@@ -1,0 +1,1125 @@
+﻿@using Microsoft.AspNet.Identity
+@{
+  ViewBag.Title = "Report";
+}
+@model dynamic
+
+<style>
+  .k-icon,
+  .k-tool-icon,
+  .k-grouping-dropclue,
+  .k-drop-hint,
+  .k-column-menu .k-sprite,
+  .k-grid-mobile .k-resize-handle-inner:before,
+  .k-grid-mobile .k-resize-handle-inner:after,
+  .k-pager-numbers .k-current-page .k-link:after,
+  .k-scheduler-toolbar > ul.k-scheduler-views > li.k-current-view > .k-link:after {
+    background-image: url('http://da7xgjtj801h2.cloudfront.net/2015.1.318/styles/MetroBlack/sprite.png');
+    border-color: transparent;
+  }
+
+  .k-grid .k-alt {
+    background-color: #f1f1f1;
+  }
+
+  .k-grid tr td {
+    border-left: 1px solid #d0d0d0;
+    border-bottom: 1px solid #d0d0d0;
+  }
+
+  .k-grid-header th.k-header {
+    background: #f0f0f0;
+    text-align: center;
+    font-weight: bold;
+  }
+
+  .k-grid > table > tbody > tr:hover,
+  .k-grid-content > table > tbody > tr:hover,
+  .k-grid-content-locked > table > tbody > tr:hover {
+    background: #E8E8E8;
+    -webkit-transition-duration: 0.3s;
+    transition-duration: 0.3s;
+    -webkit-transition-property: background-color;
+    transition-property: background-color;
+  }
+
+  .k-grid-content-locked {
+    float: right;
+  }
+
+  .k-grid-header-locked {
+    float: right;
+  }
+
+  .bold {
+    font-weight: bold;
+  }
+
+  .datepicker {
+    float: left;
+  }
+
+  .date-picker {
+    margin-left: -42px;
+  }
+
+  .panel-table-header {
+    /*height: 33px;
+            overflow: auto;
+            overflow-x: hidden;
+            overflow-y: auto;*/
+  }
+
+  /*.panel-table {
+            height: 60vh;
+            overflow-x: scroll;
+            overflow-y: scroll;
+            margin-top: 0 !important;
+    }*/
+
+  /*.grid-view {
+            width: auto;
+            max-width: none !important;
+    }*/
+
+  /*#grid > .k-pager-first .k-pager-nav .k-link {
+        display: none !important;
+    }
+
+    #grid > .k-pager-wrap .k-grid-pager {
+        display: none !important;
+    }*/
+
+  .k-grid-content .k-auto-scrollable {
+    margin-bottom: -30px !important;
+  }
+
+  k-pager-info .k-label {
+    display: normal !important;
+  }
+
+  .k-pager-numbers li:nth-child(2):last-child {
+    display: none;
+  }
+
+
+  /* Dropdown Button ----------------------------------- */
+  .dropbtn {
+    background-color: transparent;
+    color: white;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    padding-left: 10px;
+    padding-right: 10px;
+    font-size: 16px;
+    border: none;
+    margin-left: 0px;
+  }
+
+  /* The container <div> - needed to position the dropdown content */
+  .dropdown {
+    position: relative;
+    display: inline-block;
+  }
+
+  /* Dropdown Content (Hidden by Default) */
+  .dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #A3F7A6;
+    min-width: 160px;
+    box-shadow: 0px 5px 10px 0px rgba(0,0,0,0.2);
+    z-index: 1;
+    margin-left: 0px;
+  }
+
+    /* Links inside the dropdown */
+    .dropdown-content a {
+      color: black;
+      padding: 8px 10px;
+      text-decoration: none;
+      display: block;
+    }
+
+      /* Change color of dropdown links on hover */
+      .dropdown-content a:hover {
+        background-color: #F1DA5F;
+      }
+
+  /* Show the dropdown menu on hover */
+  .dropdown:hover .dropdown-content {
+    display: block;
+  }
+
+  /* Change the background color of the dropdown button when the dropdown content is shown */
+  .dropdown:hover .dropbtn {
+    background-color: #88E88C;
+  }
+
+  /* Loading gif image */
+  .im_loading {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    margin: -35px 0px 0px -35px;
+    background: #fff url(Content/Default/loading.gif) no-repeat center center;
+    width: 70px;
+    height: 70px;
+    z-index: 9999;
+    -moz-border-radius: 10px;
+    -webkit-border-radius: 10px;
+    border-radius: 10px;
+    -moz-box-shadow: 1px 1px 3px #000;
+    -webkit-box-shadow: 1px 1px 3px #000;
+    box-shadow: 1px 1px 3px #000;
+    opacity: 0.7;
+    filter: progid:DXImageTransform.Microsoft.Alpha(opacity=70);
+  }
+
+  /* For progress-bar */
+  #myProgress {
+    width: 100%;
+    background-color: grey;
+    margin-top: -3px;
+  }
+
+  #myBar {
+    width: 0%;
+    height: 6px;
+    background-color: #FFA800; /*#4CAF50, blueviolet*/
+    text-align: left; /* To center it horizontally (if you want) */
+    line-height: 6px; /* To center it vertically */
+    color: white;
+    padding-left: 10px;
+  }
+
+
+  #speakingDiv {
+    position: absolute;
+    z-index: 99;
+    background-color: #f1f1f1;
+    border: 0px solid #d3d3d3;
+    text-align: center;
+    visibility: hidden;
+    height: 0px;
+    width: 200px;
+    left: 1px;
+    top: 48px;
+  }
+
+  #speakingDivHeader {
+    padding: 4px;
+    cursor: move;
+    z-index: 100;
+    background-color: #2196F3;
+    color: #fff;
+  }
+</style>
+<style>
+  .comment_container {
+    position: relative;
+    text-align: center;
+    color: white;
+  }
+
+  .comment_counter_centered {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  .link_padding {
+    padding: 5px 10px !important;
+  }
+</style>
+
+<script src="https://code.responsivevoice.org/responsivevoice.js?key=e7b1ijP7"></script>
+
+<div ng-controller="ctrl">
+  <div class="main-content">
+    <div class="cms-messages"></div>
+    <div class="flyout-left">
+      <div class="flyout-left-inner">
+        @*<img class="logo-panel" src="~/Images/logo.png" alt="MeliaSoft">*@
+        <a href="/Report/Home"><img class="logo" src="~/Images/home_white_64.png" style="height: 30px;" alt="Home"></a>
+
+        {{errmsg}}
+        <a href="?id={{menu.Id}}" ng-repeat="menu in menus">{{menu.Name}}</a>
+
+      </div>
+    </div>
+    <div class="flyout-right">
+      @if (Request.IsAuthenticated)
+      {
+        using (Html.BeginForm("LogOff", "Account", FormMethod.Post, new { id = "logoutForm", @class = "flyout-right-inner" }))
+        {
+          <h1>Hello @User.Identity.GetUserName() !</h1>
+          @*<div id="spnChangePwd">@Html.ActionLink("Đổi mật khẩu", "ChangePassword", "Account")</div>*@
+          <a id="spnChangePwd" href="/Account/ChangePassword">Đổi mật khẩu</a>
+          <a href="javascript:document.getElementById('logoutForm').submit()">Log off</a>
+          <hr />
+          <a href="#" onclick="doGTranslate('vi|vi'); hideSubMenu('Vietnamese'); return false;" title="Vietnamese" style="margin-left: 16px; margin-top: 2px; margin-right: 60px; margin-bottom: 2px; padding-left:0px; padding-top:0px; padding-bottom:0px;"><img src="~/Images/Flags/Vietnamese.png" height="20" width="120" alt="Vietnamese" /></a>
+          <a href="#" onclick="doGTranslate('vi|en'); hideSubMenu('English'); return false;" title="English" style="margin-left: 16px; margin-top: 2px; margin-right: 60px; margin-bottom: 2px; padding-left:0px; padding-top:0px; padding-bottom:0px;"><img src="~/Images/Flags/English.png" height="20" width="120" alt="English" /></a>
+          <a href="#" onclick="doGTranslate('vi|fr'); hideSubMenu('French'); return false;" title="French" style="margin-left: 16px; margin-top: 2px; margin-right: 60px; margin-bottom: 2px; padding-left:0px; padding-top:0px; padding-bottom:0px;"><img src="~/Images/Flags/French.png" height="20" width="120" alt="French" /></a>
+          <a href="#" onclick="doGTranslate('vi|de'); hideSubMenu('German'); return false;" title="German" style="margin-left: 16px; margin-top: 2px; margin-right: 60px; margin-bottom: 2px; padding-left:0px; padding-top:0px; padding-bottom:0px;"><img src="~/Images/Flags/German.png" height="20" width="120" alt="German" /></a>
+          <a href="#" onclick="doGTranslate('vi|it'); hideSubMenu('Italian'); return false;" title="Italian" style="margin-left: 16px; margin-top: 2px; margin-right: 60px; margin-bottom: 2px; padding-left:0px; padding-top:0px; padding-bottom:0px;"><img src="~/Images/Flags/Italian.png" height="20" width="120" alt="Italian" /></a>
+          <a href="#" onclick="doGTranslate('vi|ja'); hideSubMenu('Japanese'); return false;" title="Japanese" style="margin-left: 16px; margin-top: 2px; margin-right: 60px; margin-bottom: 2px; padding-left:0px; padding-top:0px; padding-bottom:0px;"><img src="~/Images/Flags/Japanese.png" height="20" width="120" alt="Japanese" /></a>
+          <a href="#" onclick="doGTranslate('vi|ko'); hideSubMenu('Korean'); return false;" title="Korean" style="margin-left: 16px; margin-top: 2px; margin-right: 60px; margin-bottom: 2px; padding-left:0px; padding-top:0px; padding-bottom:0px;"><img src="~/Images/Flags/Korean.png" height="20" width="120" alt="Korean" /></a>
+          <a href="#" onclick="doGTranslate('vi|pt'); hideSubMenu('Portuguese'); return false;" title="Portuguese" style="margin-left: 16px; margin-top: 2px; margin-right: 60px; margin-bottom: 2px; padding-left:0px; padding-top:0px; padding-bottom:0px;"><img src="~/Images/Flags/Portuguese.png" height="20" width="120" alt="Portuguese" /></a>
+          <a href="#" onclick="doGTranslate('vi|ru'); hideSubMenu('Russian'); return false;" title="Russian" style="margin-left: 16px; margin-top: 2px; margin-right: 60px; margin-bottom: 2px; padding-left:0px; padding-top:0px; padding-bottom:0px;"><img src="~/Images/Flags/Russian.png" height="20" width="120" alt="Russian" /></a>
+          <a href="#" onclick="doGTranslate('vi|es'); hideSubMenu('Spanish'); return false;" title="Spanish" style="margin-left: 16px; margin-top: 2px; margin-right: 60px; margin-bottom: 2px; padding-left:0px; padding-top:0px; padding-bottom:0px;"><img src="~/Images/Flags/Spanish.png" height="20" width="120" alt="Spanish" /></a>
+          <a href="#" onclick="doGTranslate('vi|zh-TW'); hideSubMenu('Taiwan'); return false;" title="Taiwan (Chinese)" style="margin-left: 16px; margin-top: 2px; margin-right: 60px; margin-bottom: 16px; padding-left:0px; padding-top:0px; padding-bottom:0px;"><img src="~/Images/Flags/Taiwan.png" height="20" width="120" alt="Spanish" /></a>
+        }
+      }
+    </div>
+    <div class="rpt-header-white" id="rptHeaderDiv">
+      <span class="logo-wrapper-new">
+        @*<a id="lnkBackBtn" style="visibility: hidden;" href="javascript: window.close();">
+            <img class="logo" id="imgBackBtn" src="~/Images/back_btn.png" style="width:0px; margin-right: 9px;" alt="Back">
+          </a>*@
+        <span class="lines">
+          <span class="line"></span>
+          <span class="line2"></span>
+          @*<span class="line"></span>*@
+        </span>
+        <a id="lnkLogo" style="visibility: hidden;" href="/Report/Home"><img id="imgLogo" class="logo" style="margin-left: 10px; margin-right: 10px" src="~/Images/logo.png" alt="Meliasoft"></a>
+      </span>
+      <span class="option-wrapper">
+        <span class="lines">
+          <span class="line"></span>
+          <span class="line"></span>
+          <span class="line"></span>
+        </span>
+      </span>
+      <span class="rpt-name">@Model.Name</span>
+      <div id="myProgress" style="visibility:hidden;">
+        <div id="myBar"></div>
+      </div>
+
+      <!-- Draggable DIV -->
+      <div id="speakingDiv">
+        <!-- Include a header DIV with the same name as the draggable DIV, followed by "header" -->
+        @*<div id="speakingDivHeader">Click here to move</div>  style="background-color: lightgreen !important;" *@
+        <img id="imgSpeaking" class="position-relative" src="~/Images/speaking/Vietnamese.gif" height="110" width="200" alt="Report speaking">
+      </div>
+    </div>
+    <div class="report-pane">
+      <div class="report-header">
+        <table style="width: 100%">
+          <tbody>
+            <tr>
+              <td colspan="2">
+                <span class="company-name">@Model.CompanyName.ToUpper()</span>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <h1><span>@Model.Title</span></h1>
+                @*<div class="dropdown">
+                      <button class="dropbtn"><img src="~/Images/more_icon_24.png" alt="Customize Chart" height="20" width="20"></button>
+                      <div class="dropdown-content">
+                          <a href="/Chart/ChartCustomize?report_id=@ViewData["Id"]">Cấu hình biểu đồ...</a>
+                      </div>
+                      <span style="font-size: 15px;">@Model.Title</span>
+                  </div>*@
+              </td>
+              <td style="width: 80px;">
+                <span class="message-refresh" style="display: inline-block; float: right;">
+                  <img id="imgSpeaker" class="update-down" width="26" src="~/Images/speaker_black_36.png" onclick="translateToVoice(); return false;" />
+                </span>
+                <img id="imgSaveButton" class="save" style="padding: 3px; margin-right: 15px; float: right; visibility:hidden;" src="~/Images/save24.png" ng-click="setData()" />
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="clearfix"></div>
+      </div>
+      @*<div class="content" ng-show="!showLoader">
+
+        </div>*@
+      <kendo-grid options="mainGridOptions" style="height: 60vh;" id="grid">
+      </kendo-grid>
+      @*<div class="panel-table-header scrollbar-inner">
+            <table st-table="displayedCollection" st-safe-src="rowCollection" class="report grid-view" rules="all" style="table-layout:fixed; border-collapse: collapse; width: @ViewData["width"];" cellspacing="0" border="1">
+                <colgroup>
+                    @Html.Raw(ViewData["ColGroup"])
+                </colgroup>
+                <thead>
+                    <tr>
+                        @Html.Raw(ViewData["THead"])
+                    </tr>
+                </thead>
+            </table>
+        </div>
+        <div class="panel-table scrollbar-inner">
+            <table st-table="displayedCollection" st-safe-src="rowCollection" class="report grid-view" rules="all" style="table-layout:fixed; border-collapse: collapse; width: @ViewData["width"];" cellspacing="0" border="1">
+                <colgroup>
+                    @Html.Raw(ViewData["ColGroup"])
+                </colgroup>
+                <tbody>
+                    <tr ng-repeat="row in displayedCollection" ng-click="setSelected($index)" ng-dblclick="dblclick($index)" ng-class="{selected: $index === selected, success: $index === selected}" my-post-repeat-directive>
+                        @Html.Raw(ViewData["TBody"])
+                    </tr>
+                </tbody>
+            </table>
+        </div>*@
+    </div>
+    @if (!"".Equals(@ViewData["KeyDetail"]) && (bool)@ViewData["ShowCommentFlg"])
+    {
+      <div style="margin-left: 15px; margin-bottom: 30px; margin-top: -20px; width: 50%; max-width: 350px;">
+        <table style="width: 100%">
+          <tr>
+            @if (!"".Equals(@ViewData["KeyDetail"]))
+            {
+              <td style="width: 50%; padding-right: 15px;">
+                <input type="button" value="Back" class="btn btn-lg btn-primary btn-block" onclick="backToParent();" />
+              </td>
+            }
+            <td style="width: 50%; padding-right: 15px;">
+              <input type="button" value="Comment (@ViewData["CommentCount"])" class="btn btn-lg btn-success btn-block" onclick="openComments();" />
+            </td>
+          </tr>
+        </table>
+      </div>
+    }
+    <div>
+      @*<p style="margin-left: 15px; margin-top: -10px;"><b>GHI CHÚ:</b></p>*@
+      <p style="margin-left: 15px; margin-top: -15px; ">@Html.Raw(HttpUtility.HtmlDecode(Model.Note))</p> @*<<CHR(13)>>*@
+    </div>
+    <div class="rpt-filter-pane on">
+      <div class="im_loading" ng-show="waiting" ng-if="waiting">
+        <img src="~/Content/Default/loading.gif" />
+      </div>
+      <div class="commands">
+        <span class="glyphicon" aria-hidden="true" onclick="$(this).parent().parent().addClass('active')">
+          <img class="update-down" width="22" style="margin-left:4px;" src="~/Images/filter_white36.png" />
+        </span>
+        <span class="glyphicon glyphicon-chevron-down button-down" aria-hidden="true" onclick="$(this).parent().parent().removeClass('active')"></span>
+
+        <span class="message-refresh" ng-if="waiting">Đang thực hiện</span>
+
+        @*<img class="up" src="~/Images/arrow-up.png" onclick="$(this).parent().parent().addClass('active')" />
+          <img class="down" src="~/Images/arrow-down.png" onclick="$(this).parent().parent().removeClass('active')" />*@
+        <span class="glyphicon glyphicon-repeat button-refresh" style="padding-top:3px; margin-right: 6px;" aria-hidden="true" ng-click="refreshData()"></span>
+        @*<span class="message-refresh" style="display: inline-block; float: right;">
+              <a href='/Chart/ChartCustomize?report_id=@ViewData["Id"]' style="margin-right:15px; padding-top:3px;">
+                  <img class="update-down" height="20" width="20" src="~/Images/chart_icon_32.png" />
+              </a>
+          </span>*@
+        @*<span class="message-refresh" style="display: inline-block; float: right;">
+              <a href='#' style="margin-right:15px; padding-top:3px;" onclick="translateToVoice(); return false;">
+                  <img id="imgSpeaker" class="update-down" height="20" width="20" src="~/Images/speaker_black_36.png" />
+              </a>
+          </span>*@
+        <span class="message-refresh" style="display: inline-block; float: right; margin-right: 10px;" ng-click="setDefaultChartData()">
+          @*<a href='/Report/Home' style="margin-right:15px;padding-top:3px;"><img class="update-down" height="20" width="20" src="~/Images/chart_icon_32.png" /></a>*@
+          <img class="update-down" height="20" width="20" src="~/Images/chart_icon_32.png" />
+        </span>
+
+        <span class="message-refresh" style="display: inline-block; float: right;">
+          <a href='/Report/Home' style="margin-right:15px;padding-top:3px;"><img class="update-down" height="20" width="20" src="~/Images/home_white_32.png" /></a>
+        </span>
+
+
+
+
+        @*<img class="update-up" src="~/Images/refresh-white.png" ng-click="refreshData()" />
+          <img class="update-down" src="~/Images/refresh-black.png" ng-click="refreshData()" />*@
+        @*<span id="imgSaveButton" class="glyphicon glyphicon-floppy-disk button-refresh" style="padding-top:3px; padding-bottom: 11px; padding-right:11px; float: right; visibility:hidden;" aria-hidden="true" ng-click="setData()"></span>*@
+        @*<img id="imgSaveButton" class="save" style="padding-bottom: 11px; padding-right:11px; float: right; visibility:hidden;" src="~/Images/save.png" ng-click="setData()" />*@
+
+      </div>
+      <div class="rpt-filters">
+        @Html.Raw(ViewData["Param"])
+        <input type="hidden" id="checkedRows" value="" />
+        <input type="hidden" id="hiddenChartVoiceMsg" value="" />
+      </div>
+    </div>
+  </div>
+  <div id="google_translate_element2"></div>
+</div>
+
+
+<!-- GTranslate: https://gtranslate.io/ -->
+@*<a href="#" onclick="doGTranslate('vi|zh-TW');return false;" title="Chinese (Traditional)" class="gflag nturl" style="background-position:-400px -0px;"><img src="//gtranslate.net/flags/blank.png" height="16" width="16" alt="Chinese (Traditional)" /></a>
+  <a href="#" onclick="doGTranslate('vi|en');return false;" title="English" class="gflag nturl" style="background-position:-0px -0px;"><img src="//gtranslate.net/flags/blank.png" height="16" width="16" alt="English" /></a>
+  <a href="#" onclick="doGTranslate('vi|fr');return false;" title="French" class="gflag nturl" style="background-position:-200px -100px;"><img src="//gtranslate.net/flags/blank.png" height="16" width="16" alt="French" /></a>
+  <a href="#" onclick="doGTranslate('vi|de');return false;" title="German" class="gflag nturl" style="background-position:-300px -100px;"><img src="//gtranslate.net/flags/blank.png" height="16" width="16" alt="German" /></a>
+  <a href="#" onclick="doGTranslate('vi|it');return false;" title="Italian" class="gflag nturl" style="background-position:-600px -100px;"><img src="//gtranslate.net/flags/blank.png" height="16" width="16" alt="Italian" /></a>
+  <a href="#" onclick="doGTranslate('vi|ja');return false;" title="Japanese" class="gflag nturl" style="background-position:-700px -100px;"><img src="//gtranslate.net/flags/blank.png" height="16" width="16" alt="Japanese" /></a>
+  <a href="#" onclick="doGTranslate('vi|ko');return false;" title="Korean" class="gflag nturl" style="background-position:-0px -200px;"><img src="//gtranslate.net/flags/blank.png" height="16" width="16" alt="Korean" /></a>
+  <a href="#" onclick="doGTranslate('vi|pt');return false;" title="Portuguese" class="gflag nturl" style="background-position:-300px -200px;"><img src="//gtranslate.net/flags/blank.png" height="16" width="16" alt="Portuguese" /></a>
+  <a href="#" onclick="doGTranslate('vi|ru');return false;" title="Russian" class="gflag nturl" style="background-position:-500px -200px;"><img src="//gtranslate.net/flags/blank.png" height="16" width="16" alt="Russian" /></a>
+  <a href="#" onclick="doGTranslate('vi|es');return false;" title="Spanish" class="gflag nturl" style="background-position:-600px -200px;"><img src="//gtranslate.net/flags/blank.png" height="16" width="16" alt="Spanish" /></a>
+  <a href="#" onclick="doGTranslate('vi|th');return false;" title="Thai" class="gflag nturl" style="background-position:-0px -500px;"><img src="//gtranslate.net/flags/blank.png" height="16" width="16" alt="Thai" /></a>
+  <a href="#" onclick="doGTranslate('vi|vi');return false;" title="Vietnamese" class="gflag nturl" style="background-position:-200px -400px;"><img src="//gtranslate.net/flags/blank.png" height="16" width="16" alt="Vietnamese" /></a>*@
+
+<style type="text/css">
+  <!--
+  a.gflag {
+    vertical-align: middle;
+    font-size: 16px;
+    padding: 1px 0;
+    background-repeat: no-repeat;
+    background-image: url(//gtranslate.net/flags/16.png);
+  }
+
+    a.gflag img {
+      border: 0;
+    }
+
+    a.gflag:hover {
+      background-image: url(//gtranslate.net/flags/16a.png);
+    }
+
+  #goog-gt-tt {
+    display: none !important;
+  }
+
+  .goog-te-banner-frame {
+    display: none !important;
+  }
+
+  .goog-te-menu-value:hover {
+    text-decoration: none !important;
+  }
+
+  body {
+    top: 0 !important;
+  }
+
+  #google_translate_element2 {
+    display: none !important;
+  }
+  -->
+
+  .k-grid-header th.k-header {
+    background: #f0f0f0;
+    text-align: center;
+    font-weight: bold;
+    min-width: 120px !important;
+    width: 120px !important;
+  }
+
+</style>
+
+
+
+
+<script type="text/javascript">
+  function googleTranslateElementInit2() { new google.translate.TranslateElement({ pageLanguage: 'vi', autoDisplay: false }, 'google_translate_element2'); }
+</script>
+<script type="text/javascript" src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit2"></script>
+
+
+<script type="text/javascript">
+  /* <![CDATA[ */
+  eval(function (p, a, c, k, e, r) { e = function (c) { return (c < a ? '' : e(parseInt(c / a))) + ((c = c % a) > 35 ? String.fromCharCode(c + 29) : c.toString(36)) }; if (!''.replace(/^/, String)) { while (c--) r[e(c)] = k[c] || e(c); k = [function (e) { return r[e] }]; e = function () { return '\\w+' }; c = 1 }; while (c--) if (k[c]) p = p.replace(new RegExp('\\b' + e(c) + '\\b', 'g'), k[c]); return p }('6 7(a,b){n{4(2.9){3 c=2.9("o");c.p(b,f,f);a.q(c)}g{3 c=2.r();a.s(\'t\'+b,c)}}u(e){}}6 h(a){4(a.8)a=a.8;4(a==\'\')v;3 b=a.w(\'|\')[1];3 c;3 d=2.x(\'y\');z(3 i=0;i<d.5;i++)4(d[i].A==\'B-C-D\')c=d[i];4(2.j(\'k\')==E||2.j(\'k\').l.5==0||c.5==0||c.l.5==0){F(6(){h(a)},G)}g{c.8=b;7(c,\'m\');7(c,\'m\')}}', 43, 43, '||document|var|if|length|function|GTranslateFireEvent|value|createEvent||||||true|else|doGTranslate||getElementById|google_translate_element2|innerHTML|change|try|HTMLEvents|initEvent|dispatchEvent|createEventObject|fireEvent|on|catch|return|split|getElementsByTagName|select|for|className|goog|te|combo|null|setTimeout|500'.split('|'), 0, {}))
+  /* ]]> */
+</script>
+
+<script src="~/Scripts/Assets/report.js"></script>
+
+
+<script type="text/javascript">
+  showBackButton();
+
+    var url = baseUrl + 'Report';
+    var userName = '@ViewData["UserName"]';
+    var id = '@ViewData["Id"]';
+    var keyDetail = '@Html.Raw(@ViewData["KeyDetail"])';
+    var subFolder = '@Html.Raw(@ViewData["SubFolder"])';
+    var subFolderCmt = '@Html.Raw(@ViewData["SubFolderCmt"])';
+    var rootUrlReportRowComment = '@ViewData["RootUrlReportRowComment"]'; //http://localhost:8088
+    var allowUploadPhotoFlg = '@ViewData["AllowUploadPhotoFlg"]';
+    var param = @Html.Raw(Json.Encode(ViewData["ParamModel"]));
+    var popup = @Html.Raw(Json.Encode(ViewData["PopupModel"]));
+    var dummy = @Html.Raw(ViewData["Dummy"]);
+    var fields = @Html.Raw(ViewData["Fields"]);
+    var ishaslockedcolumn = @Html.Raw(ViewData["HasLockedColumn"]);
+    var changed = false;
+
+
+    //function displayItemDetails(reportId, soCT) {
+    //    var url = "/Report?id=" + reportId + "&so_ct=" + soCT;
+    //    window.location.replace(url);
+    //}
+
+    function openComments() {
+        //var url = "https://google.com?report_id=" + id + "&so_ct=" + so_ct;
+        var rootUrl = window.location.origin;
+        //var url = rootUrl + "/Report/Comments?user_name=" + userName + "&report_id=" + id + "&report_row_code=" + so_ct + "&from_root_url=" + rootUrl ;
+        var url = rootUrlReportRowComment + subFolderCmt + "/ReportComment?user_name=" + userName + "&report_id=" + id + "&report_row_code=" + keyDetail + "&allow_upload=" + allowUploadPhotoFlg + "&from_root_url=" + rootUrl + subFolder;
+        window.location.replace(url);
+        //window.open(url);
+    }
+    function backToParent() {
+        var url = subFolder + "/Report?id=" + id;
+        window.location.replace(url);
+    }
+
+    function doalert(checkboxElem) {
+        var checkedIdx = checkboxElem.parentElement.parentElement.rowIndex;
+
+        if (checkboxElem.checked) {
+            //alert("hi, checked, RowIndex = " + checkboxElem.parentElement.parentElement.rowIndex);
+
+            document.getElementById('checkedRows').value = document.getElementById('checkedRows').value + "," + checkedIdx + ",";
+            document.getElementById("imgSaveButton").style.visibility = "visible";
+        } else {
+            var checkedIndexs = document.getElementById('checkedRows').value;
+            //alert("bye, begin remove: checkedIdx = " + checkedIdx + ", value = " + checkedIndexs);
+
+            document.getElementById('checkedRows').value = checkedIndexs.replace("," + checkedIdx + ",", "");
+            //alert("bye, after remove: value = " + document.getElementById('checkedRows').value);
+            if (document.getElementById('checkedRows').value == "")
+                document.getElementById("imgSaveButton").style.visibility = "hidden";
+        }
+    }
+
+
+    $(function () {
+        $(".flyout-left").click(function (e) {
+            if ($(e.target).hasClass("flyout-left"))
+                $(this).removeClass('active');
+        });
+        $(".rpt-header-white .logo-wrapper-new .lines").click(function () {
+            $('.flyout-left').addClass('active');
+        });
+        $(".flyout-right").click(function (e) {
+            if ($(e.target).hasClass("flyout-right"))
+                $(this).removeClass('active');
+        });
+        $(".rpt-header-white .option-wrapper .lines").click(function () {
+            $('.flyout-right').addClass('active');
+        });
+
+        ////k-grid-content-locked
+        //$("#grid .k-grid-content").on("change", "input.chkbx", function(e) {
+        //    var grid = $("#grid").data("kendoGrid"),
+        //        dataItem = grid.dataItem($(e.target).closest("tr"));
+
+        //    $(e.target).closest("td").prepend("<span class='k-dirty'></span>");
+        //    //dataItem.Discontinued = this.checked;
+        //    dataItem.dirty = true;
+
+        //    dataItem.set("IsCheck", this.checked);
+        //    dataItem.set("IsModify", true);
+        //    changed = true;
+        //});
+
+
+    })
+
+
+
+    // on toggle method
+    // to check status of checkbox
+    function onToggle() {
+        //// check if checkbox is checked
+        //if (document.querySelector('#my-checkbox').checked) {
+        //    // if checked
+        //    console.log('checked');
+        //} else {
+        //    // if unchecked
+        //    console.log('unchecked');
+        //}
+        alert("Heelooo!");
+    }
+
+    //$("#grid .k-grid-content-locked").on("change", "input.chkbx", function (e) {
+    //    var grid = $("#grid").data("kendoGrid"),
+    //        dataItem = grid.dataItem($(e.target).closest("tr"));
+
+    //    $(e.target).closest("td").prepend("<span class='k-dirty'></span>");
+    //    //dataItem.Discontinued = this.checked;
+    //    dataItem.dirty = true;
+
+    //    dataItem.set("IsCheck", this.checked);
+    //    dataItem.set("IsModify", true);
+    //    changed = true;
+    //});
+
+    var paused = false;
+    function GoogleSays(m) {
+        var msg = new SpeechSynthesisUtterance();
+        var voices = window.speechSynthesis.getVoices();
+        var langCode = convertToLanguageCode(selectedLanguage);
+
+        console.log(voices);
+        //msg.voice = voices[10];
+        //msg.voiceURI = "native";
+        msg.volume = 1;
+        msg.rate = 1;
+        msg.pitch = 0.8;
+        msg.text = m;
+        msg.lang = langCode; //'vi-VN';
+        window.speechSynthesis.speak(msg);
+
+        // event handlers
+        //window.speechSynthesis.onpause = function () {
+        //    paused = true;
+        //};
+
+        //-----------------------------------------
+        //var lang = 'vi-VN';
+        //var msg = new SpeechSynthesisUtterance();
+        //var voices = window.speechSynthesis.getVoices();
+        //msg.voice = voices.filter(voice => voice.lang == lang)[2];
+        //msg.text = m; //'Hệ thống đã khởi động, chào mừng Hiệp quay trở lại';
+        //msg.lang = lang;
+        //window.speechSynthesis.speak(msg);
+    }
+
+
+    function convertToLanguageCode(selectedLang) {
+        var selectedLangCode = '';
+        //English(US)	Standard	en-US
+        //French (France)	Standard	fr-FR
+        //German (Germany)	Standard	de-DE
+        //Italian (Italy)	Standard	it-IT
+        //Japanese (Japan)	Standard	ja-JP
+        //Korean (South Korea)
+        //Portuguese (Portugal)	Standard	pt-PT
+        //Russian (Russia)	Standard	ru-RU
+        //Spanish (Spain)	Standard	es-ES
+        //Vietnamese vi-VN
+        switch (selectedLang) {
+            case 'English':
+                selectedLangCode = 'en-US';
+                break;
+            case 'French':
+                selectedLangCode = 'fr-FR';
+                break;
+            case 'German':
+                selectedLangCode = 'de-DE';
+                break;
+            case 'Italian':
+                selectedLangCode = 'it-IT';
+                break;
+            case 'Japanese':
+                selectedLangCode = 'ja-JP';
+                break;
+            case 'Korean':
+                selectedLangCode = 'ko-KR';
+                break;
+            case 'Portuguese':
+                selectedLangCode = 'pt-PT';
+                break;
+            case 'Russian':
+                selectedLangCode = 'ru-RU';
+                break;
+            case 'Spanish':
+                selectedLangCode = 'es-ES';
+                break;
+            case 'Taiwan':
+                selectedLangCode = 'zh-TW';
+                break;
+            default:
+                selectedLangCode = 'vi-VN';
+        }
+
+        return selectedLangCode;
+    }
+
+    function convertToLanguageName(selectedLangCode) {
+        var selectedLangName = '';
+        //English(US)	Standard	en-US
+        //French (France)	Standard	fr-FR
+        //German (Germany)	Standard	de-DE
+        //Italian (Italy)	Standard	it-IT
+        //Japanese (Japan)	Standard	ja-JP
+        //Korean (South Korea)
+        //Portuguese (Portugal)	Standard	pt-PT
+        //Russian (Russia)	Standard	ru-RU
+        //Spanish (Spain)	Standard	es-ES
+        //Vietnamese vi-VN
+
+        switch (selectedLangCode) {
+            case 'en':
+                selectedLangName = 'English';
+                break;
+            case 'fr':
+                selectedLangName = 'French';
+                break;
+            case 'de':
+                selectedLangName = 'German';
+                break;
+            case 'it':
+                selectedLangName = 'Italian';
+                break;
+            case 'ja':
+                selectedLangName = 'Japanese';
+                break;
+            case 'ko':
+                selectedLangName = 'Korean';
+                break;
+            case 'pt':
+                selectedLangName = 'Portuguese';
+                break;
+            case 'ru':
+                selectedLangName = 'Russian';
+                break;
+            case 'es':
+                selectedLangName = 'Spanish';
+                break;
+            case 'zh':
+                selectedLangName = 'Taiwan';
+                break;
+            case 'zh-TW':
+                selectedLangName = 'Taiwan';
+                break;
+            default:
+                selectedLangName = 'Vietnamese';
+        }
+
+        return selectedLangName;
+    }
+
+    var isPlaying = false;
+    var selectedLanguage = "Vietnamese";
+
+    function getCurrentLanguage() {
+        //var previousLang = google.translate.TranslateElement().a.sd;
+        //alert("previousLang = " + previousLang);
+        var currentLanguage = "Vietnamese";
+
+        var cookie = document.cookie;
+        var position = cookie.indexOf("googtrans");
+        if (position >= 0) {
+            var previousLangCode = cookie.substring(position + 11, position + 16);
+            //alert("previousLangCode = " + previousLangCode);
+            position = previousLangCode.indexOf("/");
+            //alert("position = " + position);
+            var previousLangCodeCut = previousLangCode.substring(position + 1, position + 3);
+            //alert("previousLangCodeCut = " + previousLangCodeCut);
+
+            currentLanguage = convertToLanguageName(previousLangCodeCut);
+            //alert("cookie = " + cookie);
+            //alert("previousLang = " + currentLanguage);
+        }
+
+        document.getElementById("imgSpeaking").src = "/Images/speaking/" + currentLanguage + ".gif"; //src = "~/Images/speaking/Vietnamese.gif"
+
+        return currentLanguage;
+    }
+
+    function LanguageForResponsiveVoice(selectedLangName) {
+        var selectedLangNn = selectedLangName;
+
+        if (selectedLangName == "English") {
+            selectedLangNn = "US " + selectedLangName;
+        } else if (selectedLangName == "Taiwan") {
+            selectedLangNn = "Chinese " + selectedLangName; ////Chinese Taiwan Female
+        }
+
+        return selectedLangNn;
+    }
+
+
+    window.addEventListener("beforeunload", function (event) {
+        //event.returnValue = "Write something clever here..";
+        cancelVoice();
+    });
+
+    function cancelVoice() {
+        try {
+            if (responsiveVoice.is_chrome) { //isChrome
+                console.log('window.onbeforeunload, isChrome = true');
+                window.speechSynthesis.cancel();
+
+                console.log('After Google speechSynthesis.cancel');
+            } else {
+                console.log('window.onbeforeunload, isChrome = false');
+                if (!responsiveVoice.cancelled)
+                    responsiveVoice.cancel();
+
+                console.log('After responsiveVoice.cancel');
+            }
+        } catch (err) {
+            console.log('cancelVoice: error!');
+        }
+
+    }
+
+    function translateToVoice() {
+        var msg = 'Nội dung báo cáo chưa có, vui lòng liên hệ với Meliasoft để được hỗ trợ.';
+        // Chrome 1 - 71
+        var isChrome = !!window.chrome && (!!window.chrome.webstore || !!window.chrome.runtime);
+
+        var hiddenChartVoiceMsgValue = $('#hiddenChartVoiceMsg').val();
+        if (hiddenChartVoiceMsgValue != undefined && hiddenChartVoiceMsgValue != null) {
+            msg = hiddenChartVoiceMsgValue;
+        }
+        var msgArray = msg.split(" ");
+
+        if (isPlaying == false) {
+            isPlaying = true;
+            progressBarValue = 0;
+            progressBarUpdate(false, 0);
+            document.getElementById("imgSpeaker").src = "/Images/pause_32x32.png";
+
+            ////var isChromium = window.chrome;
+            //if (responsiveVoice.is_chrome) { //isChrome
+            //    //alert("Google Says");
+            //    GoogleSays(msg);
+            //} else {
+            //    //alert("ResponsiveVoice Says");
+            //    //responsiveVoice.speak(msg, selectedLanguage + ' Female', parameters); //'Vietnamese Female' 'Xin chào các bạn, tôi đang nói những lời đơn giản nhất, các bạn có nghe rõ không?!'
+                responsiveVoice.speak(msg, LanguageForResponsiveVoice(selectedLanguage) + ' Female', parameters);
+            //    // event handlers
+            //    //responsiveVoice.onpause = function () {
+            //    //    paused = true;
+            //    //};
+            //}
+            progressBarUpdate(true, msgArray.length);
+            document.getElementById("imgSpeaking").src = "/Images/speaking/" + selectedLanguage + ".gif";
+        } else {
+            isPlaying = false;
+            progressBarValue = 0;
+            progressBarUpdate(false, 0);
+            document.getElementById("imgSpeaker").src = "/Images/speaker_black_36.png";
+            ////responsiveVoice.cancel();
+            ////console.log("ResponsiveVoice cancel");
+            //if (isChrome) {
+            //    window.speechSynthesis.cancel();
+            //    console.log("Google cancel");
+            //} else {
+            //    responsiveVoice.cancel();
+            //    console.log("ResponsiveVoice cancel");
+            //}
+
+            cancelVoice();
+
+            //if (paused == false) {
+            //    paused = true;
+            //    document.getElementById("imgSpeaker").src = "/Images/speaker_black_36.png";
+
+            //    if (isChrome) {
+            //        //alert("Google Says");
+            //        window.speechSynthesis.pause();
+            //    } else {
+            //        responsiveVoice.pause();
+            //    }
+            //    progressBarUpdate(false, 0);
+            //}
+            //else {
+            //    paused = false;
+            //    document.getElementById("imgSpeaker").src = "/Images/pause.png";
+
+            //    if (isChromium) {
+            //        //alert("Google Says");
+            //        window.speechSynthesis.resume();
+            //    } else {
+            //        responsiveVoice.resume();
+            //    }
+            //    progressBarUpdate(true, msgArray.length);
+            //}
+        }
+
+        //var audio = new Audio();
+        //audio.src = 'http://translate.google.com/translate_tts?ie=utf-8&tl=vi&q=' + msg;
+        //audio.play();
+    }
+
+
+    function voiceStartCallback() {
+        console.log("ResponsiveVoice started");
+    }
+
+    function voiceEndCallback() {
+        console.log("ResponsiveVoice ended");
+        //alert('ResponsiveVoice: EndCallback');
+
+        progressBarValue = 0;
+        progressBarUpdate(false, 0);
+        document.getElementById("imgSpeaker").src = "/Images/speaker_black_36.png";
+
+    }
+
+    var parameters = {
+        onstart: voiceStartCallback,
+        onend: voiceEndCallback
+    }
+
+    var progressBarValue = 0;
+    var intervalProgress;
+
+    function progressBarUpdate(playFlg, wordsCount) {
+
+        var speakingDiv = document.getElementById("speakingDiv");
+        var elemParent = document.getElementById("myProgress");
+        var elem = document.getElementById("myBar");
+
+        if (playFlg) {
+
+            speakingDiv.style.visibility = "visible";
+            elemParent.style.visibility = "visible";
+            speakingDiv.style.height = "155px;";
+
+            var totalSeconds = wordsCount / 2;
+            var wordOn1Percent = totalSeconds / 100;
+            var oneFloatInterval = wordOn1Percent * 1000;
+            var intIntervalValue = Math.round(oneFloatInterval);
+
+            //alert("wordsCount = " + wordsCount + "; intIntervalValue = " + intIntervalValue);
+
+            //1p = 5words
+            //1s = 3w
+            //var width = 1;
+            intervalProgress = setInterval(frame, intIntervalValue);
+            function frame() {
+                if (progressBarValue >= 100) {
+                    clearInterval(intervalProgress);
+                    speakingDiv.style.visibility = "hidden";
+                    elemParent.style.visibility = "hidden";
+                    speakingDiv.style.height = "0px;";
+                    document.getElementById("imgSpeaker").src = "/Images/speaker_black_36.png";
+                    progressBarValue = 0;
+                } else {
+                    progressBarValue++;
+                    //elem.style.width = progressBarValue + '%';
+                    //elem.innerHTML = progressBarValue * 1 + '%';
+                }
+                elem.style.width = progressBarValue + '%';
+                //elem.innerHTML = progressBarValue * 1 + '%';
+            }
+        } else {
+            clearInterval(intervalProgress);
+            speakingDiv.style.visibility = "hidden";
+            elemParent.style.visibility = "hidden";
+            speakingDiv.style.height = "0px;";
+
+            document.getElementById("imgSpeaker").src = "/Images/speaker_black_36.png";
+            //progressBarValue = 0;
+            elem.style.width = progressBarValue + '%';
+            //elem.innerHTML = progressBarValue * 1 + '%';
+        }
+
+    }
+
+
+    // Make the DIV element draggable:
+    dragElement(document.getElementById("speakingDiv"));
+
+    function dragElement(elmnt) {
+        var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+        if (document.getElementById(elmnt.id + "Header")) {
+            // if present, the header is where you move the DIV from:
+            document.getElementById(elmnt.id + "Header").onmousedown = dragMouseDown;
+        } else {
+            // otherwise, move the DIV from anywhere inside the DIV:
+            elmnt.onmousedown = dragMouseDown;
+        }
+
+        function dragMouseDown(e) {
+            e = e || window.event;
+            e.preventDefault();
+            // get the mouse cursor position at startup:
+            pos3 = e.clientX;
+            pos4 = e.clientY;
+            document.onmouseup = closeDragElement;
+            // call a function whenever the cursor moves:
+            document.onmousemove = elementDrag;
+        }
+
+        function elementDrag(e) {
+            e = e || window.event;
+            e.preventDefault();
+            // calculate the new cursor position:
+            pos1 = pos3 - e.clientX;
+            pos2 = pos4 - e.clientY;
+            pos3 = e.clientX;
+            pos4 = e.clientY;
+            // set the element's new position:
+            elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
+            elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
+        }
+
+        function closeDragElement() {
+            // stop moving when mouse button is released:
+            document.onmouseup = null;
+            document.onmousemove = null;
+        }
+
+        /* listen to the touchmove event,
+        every time it fires, grab the location
+        of touch and assign it to box */
+        elmnt.addEventListener('touchmove', function (e) {
+            // grab the location of touch
+            var touchLocation = e.targetTouches[0];
+
+            // assign box new coordinates based on the touch.
+            elmnt.style.left = (touchLocation.pageX - 100) + 'px';
+            elmnt.style.top = (touchLocation.pageY - 55) + 'px';
+        })
+
+        /* record the position of the touch
+        when released using touchend event.
+        This will be the drop position. */
+        elmnt.addEventListener('touchend', function (e) {
+            // current box position.
+            var x = parseInt(elmnt.style.left);
+            var y = parseInt(elmnt.style.top);
+        })
+    }
+
+    function hideSubMenu(selectedLang) {
+        selectedLanguage = selectedLang;
+        //document.getElementById('dropDownSelections').style.display = 'none';
+        $("div").removeClass("active");
+  }
+
+  function showBackButton() {
+    //const url = new URL("https://sdkapp.example.com:8443/central-login/index.html?client_id=dtvClient&redirect_uri=https://www.example3.com:443/callback"); // for example
+    //var url = window.location.href;
+    //var split = url.split("username=");
+    //var linkBack = document.getElementById('lnkBackBtn');
+    //var imgBack = document.getElementById('imgBackBtn');
+    var linkLogo = document.getElementById('lnkLogo');
+    var imgLogo = document.getElementById('imgLogo');
+
+
+    var rptHeaderDiv = document.getElementById('rptHeaderDiv');
+    var spnChangePwd = document.getElementById('spnChangePwd');
+
+    var webai = localStorage.getItem("webai");
+
+    console.log("webai = " + webai);
+    if (webai == 'yes') {
+      console.log("url includes username");
+      //linkBack.style.visibility = 'visible';
+      linkLogo.style.visibility = 'hidden';
+      spnChangePwd.style.visibility = 'hidden';
+      spnChangePwd.style.padding = '0px 0px';
+
+      ////width: 0px;
+      //imgBack.style.width = '30px';
+      //imgBack.style.height = '22px';
+      imgLogo.style.width = '0px';
+
+      rptHeaderDiv.style.backgroundColor = 'white';
+
+      //$('logo-wrapper:after').css('display', 'none');
+      //$('logo-wrapper').addClass('no-after');
+      //$('.logo-wrapper-new:after').css('display', 'none');
+    } else {
+      console.log("url dont include username");
+      //lnkLogo
+      //linkBack.style.visibility = 'hidden';
+      linkLogo.style.visibility = 'visible';
+      spnChangePwd.style.visibility = 'visible';
+      spnChangePwd.style.padding = '10px 20px';
+
+      //imgBack.style.width = '0px';
+      imgLogo.style.width = '150px';
+
+      rptHeaderDiv.style.backgroundColor = 'white';
+    }
+
+  }
+
+</script>

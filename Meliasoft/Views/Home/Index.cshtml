@@ -1,0 +1,35 @@
+﻿@{
+    ViewBag.Title = "Home Page";
+}
+
+<style type="text/css">
+    .account-wall {
+        margin: 20px auto;
+        padding: 100px 100px 100px 100px;
+        background-color: white;
+        border: 2px solid aliceblue;
+        -moz-box-shadow: 2px 2px 2px #000000;
+        -moz-box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.3);
+        -webkit-box-shadow: 2px 2px 2px #000000;
+        -webkit-box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.3);
+        -ms-box-shadow: 2px 2px 2px #000000;
+        -ms-box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.3);
+        box-shadow: 2px 2px 2px #000000;
+        box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.3);
+    }
+</style>
+
+<div class="row">
+    <div class="col-sm-2 col-md-2 col-lg-3"></div>
+    <div class="account-wall col-xs-12 col-sm-8 col-md-8 col-lg-6">
+        <a href="#" target="_blank">
+            <img src="~/Images/title.png" style="padding: 0px 10px 10px 0px;" class="col-xs-12 col-sm-12 col-md-12 col-lg-12" />
+        </a>
+        <img src="~/Images/title.png" class="col-xs-12 col-sm-12 col-md-12 col-lg-12" />
+    </div>
+    <div class="col-sm-2 col-md-2 col-lg-3"></div>
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

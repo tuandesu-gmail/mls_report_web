@@ -1,0 +1,160 @@
+﻿@using Microsoft.AspNet.Identity
+@{
+    ViewBag.Title = "Comments Home";
+}
+
+<style>
+    .bold {
+        font-weight: bold;
+    }
+
+    .datepicker {
+        float: left;
+    }
+
+    .date-picker {
+        margin-left: -42px;
+    }
+
+    html,
+    body {
+        height: 100%;
+        width: 100%;
+    }
+
+    #myChart {
+        height: 100%;
+        width: 100%;
+        min-height: 150px;
+    }
+
+    #myChart2 {
+        height: 100%;
+        width: 100%;
+        min-height: 150px;
+    }
+
+    #myChart4 {
+        height: 100%;
+        width: 100%;
+        min-height: 150px;
+    }
+
+    #myChart5 {
+        height: 100%;
+        width: 100%;
+        min-height: 150px;
+    }
+
+    .zc-ref {
+        display: none;
+    }
+
+    zing-grid[loading] {
+        height: 450px;
+    }
+
+
+
+
+</style>
+
+<div id="container" ng-controller="ctrl">
+    <div class="main-content">
+        <div class="cms-messages"></div>
+        <div class="flyout-left">
+            <div class="flyout-left-inner">
+                <img class="logo-panel" src="~/Images/logo.png" alt="MeliaSoft">
+
+                <a href="{{url}}?id={{menu.Id}}" ng-repeat="menu in menus">{{menu.Name}}</a>
+
+            </div>
+        </div>
+        <div class="flyout-right">
+            @if (Request.IsAuthenticated)
+            {
+                using (Html.BeginForm("LogOff", "Account", FormMethod.Post, new { id = "logoutForm", @class = "flyout-right-inner" }))
+                {
+                    <h1>Hello @User.Identity.GetUserName() !</h1>
+                    @Html.ActionLink("Đổi mật khẩu", "ChangePassword", "Account");
+                    <a href="javascript:document.getElementById('logoutForm').submit()">Log off</a>
+                    <hr />
+                    <a href="#" onclick="doGTranslate('vi|vi'); hideSubMenu('Vietnamese'); return false;" title="Vietnamese" style="margin-left: 16px; margin-top: 2px; margin-right: 60px; margin-bottom: 2px; padding-left:0px; padding-top:0px; padding-bottom:0px;"><img src="~/Images/Flags/Vietnamese.png" height="20" width="120" alt="Vietnamese" /></a>
+                    <a href="#" onclick="doGTranslate('vi|en'); hideSubMenu('English'); return false;" title="English" style="margin-left: 16px; margin-top: 2px; margin-right: 60px; margin-bottom: 2px; padding-left:0px; padding-top:0px; padding-bottom:0px;"><img src="~/Images/Flags/English.png" height="20" width="120" alt="English" /></a>
+                    <a href="#" onclick="doGTranslate('vi|fr'); hideSubMenu('French'); return false;" title="French" style="margin-left: 16px; margin-top: 2px; margin-right: 60px; margin-bottom: 2px; padding-left:0px; padding-top:0px; padding-bottom:0px;"><img src="~/Images/Flags/French.png" height="20" width="120" alt="French" /></a>
+                    <a href="#" onclick="doGTranslate('vi|de'); hideSubMenu('German'); return false;" title="German" style="margin-left: 16px; margin-top: 2px; margin-right: 60px; margin-bottom: 2px; padding-left:0px; padding-top:0px; padding-bottom:0px;"><img src="~/Images/Flags/German.png" height="20" width="120" alt="German" /></a>
+                    <a href="#" onclick="doGTranslate('vi|it'); hideSubMenu('Italian'); return false;" title="Italian" style="margin-left: 16px; margin-top: 2px; margin-right: 60px; margin-bottom: 2px; padding-left:0px; padding-top:0px; padding-bottom:0px;"><img src="~/Images/Flags/Italian.png" height="20" width="120" alt="Italian" /></a>
+                    <a href="#" onclick="doGTranslate('vi|ja'); hideSubMenu('Japanese'); return false;" title="Japanese" style="margin-left: 16px; margin-top: 2px; margin-right: 60px; margin-bottom: 2px; padding-left:0px; padding-top:0px; padding-bottom:0px;"><img src="~/Images/Flags/Japanese.png" height="20" width="120" alt="Japanese" /></a>
+                    <a href="#" onclick="doGTranslate('vi|ko'); hideSubMenu('Korean'); return false;" title="Korean" style="margin-left: 16px; margin-top: 2px; margin-right: 60px; margin-bottom: 2px; padding-left:0px; padding-top:0px; padding-bottom:0px;"><img src="~/Images/Flags/Korean.png" height="20" width="120" alt="Korean" /></a>
+                    <a href="#" onclick="doGTranslate('vi|pt'); hideSubMenu('Portuguese'); return false;" title="Portuguese" style="margin-left: 16px; margin-top: 2px; margin-right: 60px; margin-bottom: 2px; padding-left:0px; padding-top:0px; padding-bottom:0px;"><img src="~/Images/Flags/Portuguese.png" height="20" width="120" alt="Portuguese" /></a>
+                    <a href="#" onclick="doGTranslate('vi|ru'); hideSubMenu('Russian'); return false;" title="Russian" style="margin-left: 16px; margin-top: 2px; margin-right: 60px; margin-bottom: 2px; padding-left:0px; padding-top:0px; padding-bottom:0px;"><img src="~/Images/Flags/Russian.png" height="20" width="120" alt="Russian" /></a>
+                    <a href="#" onclick="doGTranslate('vi|es'); hideSubMenu('Spanish'); return false;" title="Spanish" style="margin-left: 16px; margin-top: 2px; margin-right: 60px; margin-bottom: 2px; padding-left:0px; padding-top:0px; padding-bottom:0px;"><img src="~/Images/Flags/Spanish.png" height="20" width="120" alt="Spanish" /></a>
+                    <a href="#" onclick="doGTranslate('vi|zh-TW'); hideSubMenu('Taiwan'); return false;" title="Taiwan (Chinese)" style="margin-left: 16px; margin-top: 2px; margin-right: 60px; margin-bottom: 16px; padding-left:0px; padding-top:0px; padding-bottom:0px;"><img src="~/Images/Flags/Taiwan.png" height="20" width="120" alt="Spanish" /></a>
+                }
+            }
+
+        </div>
+
+        <div class="rpt-header-white">
+            <span class="logo-wrapper-new">
+                <span class="lines">
+                    <span class="line"></span>
+                    <span class="line"></span>
+                    <span class="line"></span>
+                </span>
+                <a href="/Report/Home"><img class="logo" src="~/Images/logo.png" alt="Meliasoft"></a>
+            </span>
+            <span class="option-wrapper">
+                <span class="lines">
+                    <span class="line"></span>
+                    <span class="line"></span>
+                    <span class="line"></span>
+                </span>
+
+            </span>
+            <span id="envelopeIcon" class="option-wrapper-alert" style="height:0px; visibility:hidden;">
+                <span class="lines">
+                    <a href="#" class="icon-sub" ng-click="getAlerts()">
+                        <img src="~/Images/envelope40.png" class="img-con-sub" alt="">
+                        <span id="msgCount" class="label-danger">0</span>
+                    </a>
+                </span>
+            </span>
+
+
+        </div>
+
+        <div style="
+        margin-left: 0px;
+        margin-right: 0px;
+        margin-top: 0px;
+        margin-bottom: 5px;
+        width: 100%;
+        height: 100%;
+">
+            <iframe src="http://localhost:8088/Default" id="frameComments" title="Comments" style="   width: 100%; border-width: 0px;
+        height: 100%;
+        min-height: 90vh;"></iframe>
+
+        </div>
+    </div>
+
+   
+</div>
+
+
+
+<script type="text/javascript">
+
+    //var url = baseUrl + 'Report';
+    var userName = '@ViewData["UserName"]';
+    var reportId = '@ViewData["ReportId"]';
+    var reportRowCode = '@ViewData["ReportRowCode"]';
+    var rootUrlReportRowComment = '@ViewData["RootUrlReportRowComment"]'; //http://localhost:8088
+    var allowUploadPhotoFlg = '@ViewData["AllowUploadPhotoFlg"]';
+    //frameComments
+    var commentUrl = rootUrlReportRowComment + "/Default?user_name=" + userName + "&report_id=" + reportId + "&report_row_code=" + reportRowCode + "&allow_upload=" + allowUploadPhotoFlg;
+    document.getElementById('frameComments').src = commentUrl;
+
+</script>
+

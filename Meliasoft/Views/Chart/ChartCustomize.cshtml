@@ -1,0 +1,554 @@
+﻿@using Microsoft.AspNet.Identity
+@{
+    ViewBag.Title = "Chart Customize";
+}
+@model dynamic
+
+<style>
+
+    /*body {
+        background-color: #f1f1f1;
+    }*/
+
+    .k-icon,
+    .k-tool-icon,
+    .k-grouping-dropclue,
+    .k-drop-hint,
+    .k-column-menu .k-sprite,
+    .k-grid-mobile .k-resize-handle-inner:before,
+    .k-grid-mobile .k-resize-handle-inner:after,
+    .k-pager-numbers .k-current-page .k-link:after,
+    .k-scheduler-toolbar > ul.k-scheduler-views > li.k-current-view > .k-link:after {
+        background-image: url('http://da7xgjtj801h2.cloudfront.net/2015.1.318/styles/MetroBlack/sprite.png');
+        border-color: transparent;
+    }
+
+    .k-grid .k-alt {
+        background-color: #f1f1f1;
+    }
+
+    .k-grid tr td {
+        border-left: 1px solid #d0d0d0;
+        border-bottom: 1px solid #d0d0d0;
+    }
+
+    .k-grid-header th.k-header {
+        background: #f0f0f0;
+        text-align: center;
+        font-weight: bold;
+    }
+
+    .k-grid > table > tbody > tr:hover,
+    .k-grid-content > table > tbody > tr:hover,
+    .k-grid-content-locked > table > tbody > tr:hover {
+        background: #E8E8E8;
+        -webkit-transition-duration: 0.3s;
+        transition-duration: 0.3s;
+        -webkit-transition-property: background-color;
+        transition-property: background-color;
+    }
+
+    .k-grid-content-locked {
+        float: right;
+    }
+
+    .k-grid-header-locked {
+        float: right;
+    }
+
+    .bold {
+        font-weight: bold;
+    }
+
+    .datepicker {
+        float: left;
+    }
+
+    .date-picker {
+        margin-left: -42px;
+    }
+
+    .panel-table-header {
+        /*height: 33px;
+            overflow: auto;
+            overflow-x: hidden;
+            overflow-y: auto;*/
+    }
+
+    /*.panel-table {
+            height: 60vh;
+            overflow-x: scroll;
+            overflow-y: scroll;
+            margin-top: 0 !important;
+    }*/
+
+    /*.grid-view {
+            width: auto;
+            max-width: none !important;
+    }*/
+
+    /*#grid > .k-pager-first .k-pager-nav .k-link {
+        display: none !important;
+    }
+
+    #grid > .k-pager-wrap .k-grid-pager {
+        display: none !important;
+    }*/
+
+    .k-grid-content .k-auto-scrollable {
+        margin-bottom: -30px !important;
+    }
+
+    k-pager-info .k-label {
+        display: normal !important;
+    }
+
+    .k-pager-numbers li:nth-child(2):last-child {
+        display: none;
+    }
+
+
+    .im_loading {
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        margin: -35px 0px 0px -35px;
+        background: #fff url(/Content/Default/loading.gif) no-repeat center center;
+        width: 70px;
+        height: 70px;
+        z-index: 9999;
+        -moz-border-radius: 10px;
+        -webkit-border-radius: 10px;
+        border-radius: 10px;
+        -moz-box-shadow: 1px 1px 3px #000;
+        -webkit-box-shadow: 1px 1px 3px #000;
+        box-shadow: 1px 1px 3px #000;
+        opacity: 0.7;
+        filter: progid:DXImageTransform.Microsoft.Alpha(opacity=70);
+    }
+
+    .white-div {
+        width: 100%;
+        height: 20px;
+        position: relative;
+        margin-top: -20px;
+        bottom: 0;
+        right: 0;
+        /*background: red;*/
+        z-index: 9999;
+    }
+</style>
+<link rel="stylesheet" href="~/Content/slider_css/bootstrap.css" >
+<link rel="stylesheet" href="~/Content/slider_css/styles.css">
+
+<script src="~/Scripts/Assets/chartCustomize.js"></script>
+
+@*<script src="~/Scripts/slider_libs/jquery.min.js"></script>
+    <script src="~/Scripts/slider_libs/angular.min.js"></script>
+    <script src="~/Scripts/slider_libs/angular-animate.min.js"></script>*@
+<script src="~/Scripts/slider_libs/TweenMax.min.js"></script>
+
+<div ng-controller="chartCtrl">
+    <div class="main-content">
+        <div class="cms-messages"></div>
+        <div class="flyout-left">
+            <div class="flyout-left-inner">
+                <img class="logo-panel" src="~/Images/logo.png" alt="MeliaSoft">
+                {{errmsg}}
+                <a href="/Report?id={{menu.Id}}" ng-repeat="menu in menus">{{menu.Name}}</a>
+
+            </div>
+        </div>
+        <div class="flyout-right">
+            @if (Request.IsAuthenticated)
+            {
+                using (Html.BeginForm("LogOff", "Account", FormMethod.Post, new { id = "logoutForm", @class = "flyout-right-inner" }))
+                {
+                    <h1>Hello @User.Identity.GetUserName() !</h1>
+                    @Html.ActionLink("Đổi mật khẩu", "ChangePassword", "Account");
+                    <a href="javascript:document.getElementById('logoutForm').submit()">Log off</a>
+                }
+            }
+        </div>
+        <div class="rpt-header-white">
+            <span class="logo-wrapper-new">
+                <span class="lines">
+                    <span class="line"></span>
+                    <span class="line"></span>
+                    <span class="line"></span>
+                </span>
+                <a href="/Report/Home"><img class="logo" src="~/Images/logo.png" alt="MeliaSoft"></a>
+            </span>
+            <span class="option-wrapper">
+                <span class="lines">
+                    <span class="line"></span>
+                    <span class="line"></span>
+                    <span class="line"></span>
+                </span>
+            </span>
+            @*<span class="rpt-name">@Model.Name</span>*@
+        </div>
+        <div class="report-pane">
+            <div class="report-header" style="background-color: white !important;">
+                <table style="width: 100%">
+                    <tbody>
+                        <tr>
+                            <td>
+                                @*<h1><span>@Model.Title</span><a href='/Chart/Chart?id=@ViewData["ReportId"]' style="margin-left:25px; margin-right:15px;"><span class="glyphicon glyphicon-signal button-refresh" style="padding-top:3px;"></span></a></h1>*@
+                                <div style="margin-left: 30px; margin-right: 30px; margin-top:0px; margin-bottom: 10px; font-size: 20pt;">Cấu hình biểu đồ</div>
+                                @*<a href="#" ng-click="refreshData()">▪ Khôi phục về mặc định</a>*@
+
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+            </div>
+            @*<div class="content" ng-show="!showLoader">
+        </div>*@
+            @*<div style="margin-left: 20px; margin-right: 20px; margin-top: 5px; margin-bottom: 7px; font-size: 16pt; ">● Thuộc tính của biểu đồ:</div>
+           <div style="margin-left: 20px; margin-right: 10px; margin-top: 5px; margin-bottom: 30px; ">
+            <table style="width: 100%">
+                <tbody>
+                    <tr>
+                        <td style="min-width: 130px; max-width 250px; height: 30px;">
+                            <span style="margin-left: 10px;">○ Tiêu đề (*):</span>
+                        </td>
+                        <td style="width: 80%;">
+                            <input type="text" id="txtChartTitle" value="@ViewData["ChartTitle"]" style="width:100%;" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="min-width: 130px; max-width 250px; height: 30px;">
+                            <span style="margin-left: 10px;">○ Tiêu đề phụ:</span>
+                        </td>
+                        <td style="width: 80%;">
+                            <input type="text" id="txtChartSubTitle" value="@ViewData["ChartSubTitle"]" style="width:100%;" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="min-width: 130px; max-width 250px; height: 30px;">
+                            <span style="margin-left: 10px;">○ Hiển thị biểu đồ:</span>
+                        </td>
+                        <td style="width: 80%;">
+                            <input type="checkbox" id="chkChartVisible" name="chkChartVisible" checked="@ViewData["ChartVisible"]" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="min-width: 130px; max-width 250px; height: 30px;">
+                            <span style="margin-left: 10px;">○ Ghi chú:</span>
+                        </td>
+                        <td style="width: 80%;">
+                            <input type="text" id="txtChartNote" value="@ViewData["ChartNote"]" style="width:100%;" />
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+        </div>*@
+
+
+
+            <div style="margin-left: 20px; margin-right: 20px; margin-top: 30px; margin-bottom: 0px; font-size: 14pt; ">
+
+                <table style="width: 100%">
+                    <tbody>
+                        <tr>
+                            <td style="min-width: 100px;">
+                                Chọn loại biểu đồ:
+                            </td>
+                            <td></td>
+                            <td style="width: 40px;">
+                                <a class="arrow prev" href="#" ng-click="nextSlide()" style="position: relative !important; width: 24px; height: 24px;"></a>
+                            </td>
+                            <td style="width: 40px;">
+                                <a class="arrow next" href="#" ng-click="prevSlide()" style="position: relative !important; width: 24px; height: 24px;"></a>
+                            </td>
+                        </tr>
+
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="container slider">
+                <img ng-repeat="slide in slides" class="slide slide-animation nonDraggableImage"
+                     ng-swipe-right="nextSlide()" ng-swipe-left="prevSlide()"
+                     ng-hide="!isCurrentSlideIndex($index)" ng-src="{{slide.ChartDemoImg}}" style="width: 100%; height:100%;">
+                <a class="arrow prev" href="#" ng-click="nextSlide()" style="visibility: hidden;"></a>
+                <a class="arrow next" href="#" ng-click="prevSlide()" style="visibility: hidden;"></a>
+                <nav class="nav">
+                    <div class="wrapper">
+                        <ul class="dots">
+                            <li class="dot" ng-repeat="slide in slides">
+                                <a href="#" ng-class="{'active':isCurrentSlideIndex($index)}"
+                                   ng-click="setCurrentSlideIndex($index);">{{slide.TypeName}}-{{slide.StyleName}}</a>
+                            </li>
+                        </ul>
+                    </div>
+                </nav>
+            </div>
+            <div style="margin-left: 20px; margin-right: 20px; margin-top: 3px; margin-bottom: 17px; font-size: 11pt; ">
+                Đang chọn loại số: <span id="selectedChartIndex"></span>
+            </div>
+            <div style="margin-left: 20px; margin-right: 20px; margin-top: 5px; margin-bottom: 7px; font-size: 14pt; ">
+
+                <table style="width: 100%">
+                    <tbody>
+                        <tr>
+                            <td style="min-width: 100px;">
+                                Chọn cột:
+                            </td>
+                            <td style="min-width: 10px;">
+
+                                @*<input type="checkbox" ng-change="triggerAllColumns()" ng-model="chkBoxChief" style="height:0px;">*@
+                                @*<label style="color: blueviolet; padding-top: 3px; "><input type="checkbox" ng-change="triggerSelectAllColumns()" ng-model="IsCheck" style="display: none;">Tất cả</label>*@
+                                @*<label style="color: blueviolet; padding-top: 3px;"><input type="checkbox" id="checkAllColumns" name="checkAllColumns" value="value" ng-click="checkAllColumns()">Tất cả</label>*@
+                                @*<a href="#" ng-click="checkAllColumns(); return false;">Tất cả</a>*@
+                            </td>
+                            <td style="min-width: 50px;">
+                                @*<a href="#" ng-click="uncheckAllColumns()">Bỏ chọn tất cả</a>*@
+                                @*<label style="color: blueviolet; padding-top: 3px; "><input type="checkbox" ng-change="triggerUnselectAllColumns()" ng-model="IsCheck" style="display: none;">Bỏ chọn tất cả</label>*@
+                            </td>
+                            <td style="min-width: 80px; text-align: right;">
+                                @*<a href="#" ng-click="getChartColumns()">Mặc định</a>*@
+                                @*<label style="color: blueviolet; padding-top: 3px; "><input type="checkbox" ng-change="triggerDefaultColumns()" ng-model="IsCheck" style="display: none;">Mặc định</label>*@
+                                <label style="color: blueviolet; padding-top: 3px; padding-right: 5px; " ng-click="triggerDefaultColumns()">Mặc định</label>
+                            </td>
+                        </tr>
+
+                    </tbody>
+                </table>
+            </div>
+            <kendo-grid options="mainGridOptions_Columns" style="height: 32vh; margin-left: 20px; margin-right: 20px;" id="gridSelectColumns">
+            </kendo-grid>
+
+            <div style="margin-left: 20px; margin-right: 20px; margin-top: 30px; margin-bottom: 7px; font-size: 14pt; ">
+                <table style="width: 100%">
+                    <tbody>
+                        <tr>
+                            <td style="min-width: 100px;">
+                                Chọn dòng:
+                            </td>
+                            <td style="min-width: 10px;">
+                                @*<a href="#" ng-click="checkAllRows(); return false;">Tất cả</a>*@
+                                @*<label style="color: blueviolet; padding-top: 3px;"><input type="checkbox" id="checkAllRows" name="checkAllRows" value="value" ng-click="checkAllRows()">Tất cả</label>*@
+                            </td>
+                            <td style="min-width: 50px;">
+                                @*<a href="#" ng-click="uncheckAllRows()">Bỏ chọn tất cả</a>*@
+                            </td>
+                            <td style="min-width: 80px; text-align: right;">
+                                <label style="color: blueviolet; padding-top: 3px; padding-right: 5px; " ng-click="triggerDefaultRows()">Mặc định</label>
+                            </td>
+                        </tr>
+
+                    </tbody>
+                </table>
+            </div>
+            <kendo-grid options="mainGridOptions_Rows" style="height: 32vh; margin-left: 20px; margin-right: 20px;" id="gridSelectRows">
+            </kendo-grid>
+
+
+            <div style="margin-left: 20px; margin-right: 20px; margin-top: 30px; margin-bottom: 5px; font-size: 13pt; ">
+                <table style="width: 100%">
+                    <tbody>
+                        <tr>
+                            <td style="width: 30px;">
+                                <input type="checkbox" id="chkAutoSpeech" checked="@ViewData["AutoSpeech"]" />
+                            </td>
+                            <td>
+                                Tự động đọc audio
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            @*<div style="margin-left: 20px; margin-right: 20px; margin-top: 10px; margin-bottom: 35px; font-size: 14pt; ">
+
+        </div>*@
+
+            <div style="margin-left: 20px; margin-right: 20px; margin-top: 30px; margin-bottom: 5px; font-size: 13pt; ">
+                <table style="width: 100%">
+                    <tbody>
+                        <tr>
+                            <td style="width: 30px;">
+                                <input type="checkbox" id="chkShowAtHomePage" checked="@ViewData["ChartVisible"]" />
+                            </td>
+                            <td>
+                                Hiển thị ở trang chủ
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            @*<div style="margin-left: 20px; margin-right: 20px; margin-top: 10px; margin-bottom: 35px; font-size: 14pt; ">
+
+        </div>*@
+
+
+            @*<div style="margin-left: 20px; margin-right: 20px; margin-top: 10px; margin-bottom: 10px; ">
+            <select name="chartType" id="chartType"
+                    ng-options="option.TypeFullName for option in ChartTypes.availableOptions track by option.TypeId"
+                    ng-model="ChartTypes.selectedOption"></select>
+        </div>
+        <div style="margin-left: 20px; margin-right: 20px; margin-top: 10px; margin-bottom: 50px; width: 93%;">
+
+            <img src="{{ChartTypes.selectedOption.ChartDemoImg}}" style="width: 100%; max-width: 1200px;" />
+
+            <div class="white-div">
+                <table style="width: 100%">
+                    <tbody>
+                        <tr>
+                            <td />
+                            <td style="width: 110px; height: 20px; background: white;" />
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>*@
+
+        </div>
+
+        <div class="rpt-filter-pane on">
+            <div class="im_loading" ng-show="waiting" ng-if="waiting">
+                <img src="~/Content/Default/loading.gif" />
+            </div>
+            <div class="commands">
+                <span class="glyphicon glyphicon-chevron-up button-up" aria-hidden="true" onclick="$(this).parent().parent().addClass('active')"></span>
+                <span class="glyphicon glyphicon-chevron-down button-down" aria-hidden="true" onclick="$(this).parent().parent().removeClass('active')"></span>
+
+                <span class="message-refresh" ng-if="waiting">Đang thực hiện</span>
+
+
+                <span class="glyphicon glyphicon-repeat button-refresh" style="padding-top:3px; margin-right:10px;" aria-hidden="true" ng-click="refreshData()"></span>
+
+                <span class="glyphicon glyphicon-floppy-disk button-refresh" style="padding-top:3px; margin-right:15px;" ng-click="updateChart();"></span>
+
+
+                <span class="message-refresh" style="display: inline-block; float: right;">
+                    <a href='/Report/Home' style="margin-right:15px;padding-top:3px;"><img class="update-down" height="20" width="20" src="~/Images/home_white_32.png" /></a>
+                </span>
+
+            </div>
+            <div class="rpt-filters">
+
+            </div>
+        </div>
+    </div>
+    <input type="hidden" id="checkedChartColumns" value='@ViewData["SelectedColumns"]' />
+    <input type="hidden" id="checkedChartRows" value='@ViewData["SelectedRows"]' />
+    <input type="hidden" id="selectedTypeId" value='@ViewData["SelectedTypeId"]' />
+</div>
+
+<script type="text/javascript">
+    var url = baseUrl + 'Chart';
+    var chart_id = @ViewData["ChartId"];
+    var report_id  = @ViewData["ReportId"];
+    //var param = @Html.Raw(Json.Encode(ViewData["ParamModel"]));
+    //var popup = @Html.Raw(Json.Encode(ViewData["PopupModel"]));
+    var chartColumns_Dummy = @Html.Raw(ViewData["ChartColumns_Dummy"]);
+    var chartColumns_Fields = @Html.Raw(ViewData["ChartColumns_Fields"]);
+
+    var chartRows_Dummy = @Html.Raw(ViewData["ChartRows_Dummy"]);
+    var chartRows_Fields = @Html.Raw(ViewData["ChartRows_Fields"]);
+
+    var selected_chart_type_id = @Html.Raw(ViewData["SelectedTypeId"]);
+
+    var chkBoxFlg_SelectAll = false;
+    var chkBoxFlg_UnselectAll = false;
+    var chkBoxFlg_Default = false;
+
+    //alert('previousSelectedColumns = ' + document.getElementById('checkedChartColumns').value);
+    //alert('previousSelectedRows = ' + document.getElementById('checkedChartRows').value);
+    //document.getElementById('checkedChartColumns').value = selectedColumns;
+
+    //var ishaslockedcolumn = @Html.Raw(ViewData["HasLockedColumn"]);
+    var changed = false;
+
+    //function selectAllCheckedChartColumns() {
+    //    //get the grid
+    //    var grid = $("#gridSelectColumns").data("kendoGrid");
+
+    //    // array to store the dataItems
+    //    //var selected = [];
+    //    var selectedColumns = "";
+
+    //    //get all selected rows (those which have the checkbox checked)
+    //    grid.select().each(function(){
+
+    //        //push the dataItem into the array
+    //        //selected.push(grid.dataItem(this));
+    //        selectedColumns += ',' + grid.dataItem(this) + ',';
+
+    //    });
+    //    document.getElementById('checkedChartColumns').value = selectedColumns;
+    //    alert('selectedColumns = ' + selectedColumns);
+    //}
+
+
+    //function selectChartColumn(checkboxElem) {
+    //    var checkedIdx = checkboxElem.parentElement.parentElement.rowIndex;
+
+    //    if (checkboxElem.checked) {
+    //        //alert("hi, checked, RowIndex = " + checkboxElem.parentElement.parentElement.rowIndex);
+
+    //        document.getElementById('checkedChartColumns').value = document.getElementById('checkedChartColumns').value + "," + checkedIdx + ",";
+    //        //document.getElementById("imgSaveButton").style.visibility = "visible";
+    //    } else {
+    //        var checkedIndexs = document.getElementById('checkedChartColumns').value;
+    //        //alert("bye, begin remove: checkedIdx = " + checkedIdx + ", value = " + checkedIndexs);
+
+    //        document.getElementById('checkedChartColumns').value = checkedIndexs.replace("," + checkedIdx + ",", "");
+    //        //alert("bye, after remove: value = " + document.getElementById('checkedChartColumns').value);
+    //        //if (document.getElementById('checkedChartColumns').value == "")
+    //        //    document.getElementById("imgSaveButton").style.visibility = "hidden";
+    //    }
+    //}
+
+    // function selectChartRow(checkboxElem) {
+    //    var checkedIdx = checkboxElem.parentElement.parentElement.rowIndex;
+
+    //    if (checkboxElem.checked) {
+    //        document.getElementById('checkedChartRows').value = document.getElementById('checkedChartRows').value + "," + checkedIdx + ",";
+    //    } else {
+    //        var checkedIndexs = document.getElementById('checkedChartRows').value;
+    //        document.getElementById('checkedChartRows').value = checkedIndexs.replace("," + checkedIdx + ",", "");
+    //    }
+    //}
+
+
+    $(function () {
+        $(".flyout-left").click(function (e) {
+            if ($(e.target).hasClass("flyout-left"))
+                $(this).removeClass('active');
+        });
+        $(".rpt-header-white .logo-wrapper-new .lines").click(function () {
+            $('.flyout-left').addClass('active');
+        });
+        $(".flyout-right").click(function (e) {
+            if ($(e.target).hasClass("flyout-right"))
+                $(this).removeClass('active');
+        });
+        $(".rpt-header-white .option-wrapper .lines").click(function () {
+            $('.flyout-right').addClass('active');
+        });
+
+    })
+
+
+</script>
+
+
+
+
+<script>
+
+    // on toggle method
+    // to check status of checkbox
+    function onToggle() {
+        alert("Heelooo!");
+    }
+
+
+
+</script>

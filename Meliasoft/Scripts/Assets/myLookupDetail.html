@@ -1,0 +1,40 @@
+﻿<div class="modal-header">
+    <h4 class="modal-title" id="modal-title">{{$ctrl.title}}</h4>
+</div>
+<div class="modal-body" id="modal-body">
+    <div class="panel">
+        <table st-table="$ctrl.displayedCollection" st-safe-src="$ctrl.rowCollection" class="hovertable table-hover" width="100%" class="grid" arrowselector>
+            <colgroup>
+                <col width="10%" />
+                <col width="50%" />
+                <col width="10%" />
+                <col width="10%" />
+                <col width="10%" />
+                <col width="10%" />
+            </colgroup>
+            <thead>
+                <tr>
+                    <th class="text-center" style="width: 10px;">Vật tư</th>
+                    <th class="text-center" style="width: 60px;">Tên vật tư</th>
+                    <th class="text-center" style="width: 10px;">Đvt</th>
+                    <th class="text-center" style="width: 10px;">Số lượng</th>
+                    <th class="text-center" style="width: 10px;">Đơn giá</th>
+                    <th class="text-center" style="width: 10px;">Thành tiền</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="row in $ctrl.displayedCollection">
+                    <td class="text-left">{{row.MA_VT}}</td>
+                    <td class="text-left">{{row.TEN_VT}}</td>
+                    <td class="text-left">{{row.DVT}}</td>
+                    <td class="text-right">{{row.SO_LUONG}}</td>
+                    <td class="text-right">{{row.GIA}}</td>
+                    <td class="text-right">{{row.TIEN}}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+<div class="modal-footer">
+    <button type="button" class="ms-ButtonHeightWidth width80" ng-click="$ctrl.ok()">Đóng</button>
+</div>
