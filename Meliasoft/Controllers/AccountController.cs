@@ -58,6 +58,7 @@ namespace Meliasoft.Controllers
         //string encryptData = await this.EncryptLoginInfoAsync(inputData);
 
         ///Report/Home?webai=yes&urname=mls&accKey=5pnIOjbJwhCmbKYHFGktLin4mNt%2F2QfsBgykatXUZutwYw1kZdpmwBuUeD9airGYvPurw%2BoqgjdCeIB5iYPZ5m%2FnpwCaufrIhIABzyDIcn%2F0iqna96q%2BvQ%3D%3D
+        // ?webai=yes&urname=mls&accKey=5pnIOjbJwhCmbKY&ma_dvcs=abc
 
         if (!string.IsNullOrEmpty(returnUrl) && returnUrl.ToLower().Contains("acckey="))
         {
