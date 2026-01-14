@@ -1,4 +1,4 @@
-﻿app.controller('ctrl', ['$scope', '$q', 'GridService', '$uibModal', '$http', function ($scope, $q, GridService, $uibModal, $http) {
+app.controller('ctrl', ['$scope', '$q', 'GridService', '$uibModal', '$http', function ($scope, $q, GridService, $uibModal, $http) {
   //for DatePicker
   $scope.dateOptions = {
     formatYear: 'yy',
@@ -560,10 +560,32 @@
       var params = { id: id, param: postRows, changed: true, clientAddress: addr };
       return GridService.setData(params);
     }).then(function (result) {
-      if (result.Success) alert("Success"); else showMsg(result.Error); // alert(result.Error);
+      if (result.Success) alert("Success"); else showMsg(result.Error);
     }, function () { alert("error"); });
 
   }
+
+  window.approveCheckboxChanged = function (checkbox) {
+    var field = checkbox.getAttribute("data-field");
+    if (!field) return;
+
+    var grid = $("#grid").data("kendoGrid");
+    if (!grid) return;
+
+    var tr = $(checkbox).closest("tr");
+    var dataItem = grid.dataItem(tr);
+    if (!dataItem) return;
+
+    var checked = checkbox.checked;
+    if (typeof dataItem.set === "function") {
+      dataItem.set(field, checked);
+    } else {
+      dataItem[field] = checked;
+    }
+
+    dataItem.IsModify = true;
+    dataItem.dirty = true;
+  };
 
   function showMsg(msg) {
     var text = (typeof msg === 'string') ? msg : JSON.stringify(msg, null, 2);

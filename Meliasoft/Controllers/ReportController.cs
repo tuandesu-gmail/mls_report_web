@@ -362,15 +362,22 @@ namespace Meliasoft.Controllers
               dummy.Append(", ");
             }
 
-            //string boldStyle = "false";
-            //if (item.Bold == true)
-            //    boldStyle = "true";
+            var isMainApproveCol = string.Equals(item.DataFieldName, "IsCheck", StringComparison.OrdinalIgnoreCase);
+            var isSuffixApproveCol = fieldName.EndsWith("_duyet") || fieldName.EndsWith("_approve");
+            var isIsCheckLikeCol = fieldName.Contains("ischeck");
 
-
-
-            if (string.Compare(item.DataFieldName, "IsCheck", true) == 0)
+            if (isMainApproveCol || isSuffixApproveCol || isIsCheckLikeCol)
             {
-              dummy.AppendFormat("{{locked: {1}, template: '<input type=\"checkbox\" #= IsCheck ? \\'checked=\"checked\"\\' : \"\" # class=\"chkbx\"  onchange=\"doalert(this)\" />', title: \"{0}\", width: \"66px\"}}", item.HeaderText, item.Locked ? "true" : "false");
+              var fieldNameForTemplate = item.DataFieldName;
+              var onChangeAttr = isMainApproveCol ? " onchange=\\\"doalert(this)\\\"" : " onchange=\\\"approveCheckboxChanged(this)\\\"";
+
+              dummy.AppendFormat(
+                  "{{locked: {2}, template: '<input type=\"checkbox\" #= {3} ? \\'checked=\"checked\"\\' : \"\" # class=\"chkbx\" data-field=\"{3}\"{4} />', title: \"{0}\", width: \"66px\"}}",
+                  item.HeaderText,
+                  widthCol,
+                  item.Locked ? "true" : "false",
+                  fieldNameForTemplate,
+                  onChangeAttr);
             }
             else if (string.Compare(item.Format, "{0:dd/MM/yyyy}", true) == 0)
             {
