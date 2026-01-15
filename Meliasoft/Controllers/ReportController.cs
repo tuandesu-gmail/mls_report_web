@@ -228,7 +228,7 @@ namespace Meliasoft.Controllers
         }
 
         // ----- Add comment column -----
-        if (isMasterDetailRpFlg && string.IsNullOrEmpty(key_detail) && (hasIsKeyDetailColFlg))
+        if (false && isMasterDetailRpFlg && string.IsNullOrEmpty(key_detail) && (hasIsKeyDetailColFlg))
         {
           //string displayField = "<img class=\"logo\" src=\"/Images/comment_counter.png\" >";
           string keyField = "#=Stt#";
@@ -371,13 +371,21 @@ namespace Meliasoft.Controllers
               var fieldNameForTemplate = item.DataFieldName;
               var onChangeAttr = isMainApproveCol ? " onchange=\\\"doalert(this)\\\"" : " onchange=\\\"approveCheckboxChanged(this)\\\"";
 
+              int approveColWidth = 66;
+              if (!string.IsNullOrEmpty(item.HeaderText))
+              {
+                  int estimated = item.HeaderText.Length * 9 + 25; 
+                  approveColWidth = Math.Max(65, Math.Min(130, estimated));
+              }
+
               dummy.AppendFormat(
-                  "{{locked: {2}, template: '<input type=\"checkbox\" #= {3} ? \\'checked=\"checked\"\\' : \"\" # class=\"chkbx\" data-field=\"{3}\"{4} />', title: \"{0}\", width: \"66px\"}}",
+                  "{{locked: {2}, template: '<input type=\"checkbox\" #= {3} ? \\'checked=\"checked\"\\' : \"\" # class=\"chkbx\" data-field=\"{3}\"{4} />', title: \"{0}\", width: \"{5}px\"}}",
                   item.HeaderText,
                   widthCol,
                   item.Locked ? "true" : "false",
                   fieldNameForTemplate,
-                  onChangeAttr);
+                  onChangeAttr,
+                  approveColWidth);
             }
             else if (string.Compare(item.Format, "{0:dd/MM/yyyy}", true) == 0)
             {
