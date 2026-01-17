@@ -1,4 +1,4 @@
-﻿@using Microsoft.AspNet.Identity
+@using Microsoft.AspNet.Identity
 @{
     ViewBag.Title = "Reports Home";
 }
@@ -291,6 +291,9 @@
             using (Html.BeginForm("LogOff", "Account", FormMethod.Post, new { id = "logoutForm", @class = "flyout-right-inner" }))
             {
               <h1>Hello @User.Identity.GetUserName() !</h1>
+              <script type="text/javascript">
+                console.log('Logged in username (from server identity): @User.Identity.GetUserName()');
+              </script>
               @*@Html.ActionLink("Đổi mật khẩu", "ChangePassword", "Account")*@
               
               <a id="spnChangePwd" href="/Account/ChangePassword">Đổi mật khẩu</a>

@@ -809,9 +809,9 @@ namespace Meliasoft.Controllers
         StringBuilder errorText = new StringBuilder();
         errorText.Append(cmdText);
 
+        bool first = true;
         if (param != null)
         {
-          bool first = true;
           foreach (var item in param)
           {
             if (item.Value == null)
@@ -903,6 +903,42 @@ namespace Meliasoft.Controllers
             first = false;
           }
         }
+
+        bool needComma = paramNames.Count > 0;
+
+        string ma_DVCS = GetMaDVCS();
+        var ip = Request.ServerVariables["HTTP_X_FORWARDED_FOR"];
+        if (string.IsNullOrWhiteSpace(ip)) ip = Request.UserHostAddress;
+        var logComputer = ip;
+
+        Func<string, object, bool> appendSysParam = (name, value) =>
+        {
+          if (paramNames.Any(n => string.Equals(n.TrimStart('@'), name, StringComparison.OrdinalIgnoreCase)))
+            return false;
+
+          if (needComma)
+          {
+            cmdText.Append(", ");
+            errorText.Append(", ");
+          }
+
+          cmdText.AppendFormat("@{0} = @{0}", name);
+          paramNames.Add("@" + name);
+          paramValues.Add(value ?? string.Empty);
+
+          if (value != null)
+            errorText.AppendFormat("@{0} = '{1}'", name, value);
+          else
+            errorText.AppendFormat("@{0} = NULL", name);
+
+          needComma = true;
+          return true;
+        };
+
+        appendSysParam("M_Name", _meliasoftData.UserName ?? "MLS");
+        appendSysParam("M_Language", "VN");
+        appendSysParam("M_Ma_Dvcs", ma_DVCS ?? "A01");
+        appendSysParam("M_Log_Computer", logComputer ?? "");
 
         try
         {
@@ -1257,9 +1293,9 @@ namespace Meliasoft.Controllers
               new object[] {
             json,                              // @_j_Value
             _meliasoftData.UserName ?? "MLS",  // @M_Name
-            "VN",                               // @M_Language
-            ma_DVCS ?? "A01",                              // @M_Ma_Dvcs (tùy môi trường)
-            logComputer ?? ""                   // @M_Log_Computer
+            "VN",                              // @M_Language
+            ma_DVCS ?? "A01",                  // @M_Ma_Dvcs (tùy môi trường)
+            logComputer ?? ""                  // @M_Log_Computer
               }
           );
 
