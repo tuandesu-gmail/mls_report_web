@@ -1,4 +1,4 @@
-﻿using Dynamitey;
+using Dynamitey;
 using FastMember;
 using Meliasoft.Controllers;
 using Meliasoft.Cores;
@@ -935,10 +935,47 @@ namespace Meliasoft.Controllers
           return true;
         };
 
-        appendSysParam("M_Name", _meliasoftData.UserName ?? "MLS");
-        appendSysParam("M_Language", "VN");
-        appendSysParam("M_Ma_Dvcs", ma_DVCS ?? "A01");
-        appendSysParam("M_Log_Computer", logComputer ?? "");
+        var spNameRaw = Convert.ToString(report.StoredProcedureName ?? "").Trim();
+        if (!string.IsNullOrEmpty(spNameRaw))
+        {
+          var spNameNoBracket = spNameRaw.Replace("[", "").Replace("]", "");
+          string schemaName = "dbo";
+          string procName = spNameNoBracket;
+
+          var parts = spNameNoBracket.Split('.');
+          if (parts.Length == 2)
+          {
+            schemaName = parts[0];
+            procName = parts[1];
+          }
+
+          var spParams = _meliasoftData.Query(
+              @"SELECT p.name 
+                FROM sys.parameters p
+                INNER JOIN sys.objects o ON p.object_id = o.object_id
+                WHERE o.type = 'P'
+                  AND o.name = @ProcName
+                  AND SCHEMA_NAME(o.schema_id) = @SchemaName",
+              CommandType.Text,
+              new[] { "@ProcName", "@SchemaName" },
+              new object[] { procName, schemaName });
+
+          var spParamNames = new HashSet<string>(
+              spParams.Select(x => ((string)x.name).TrimStart('@')),
+              StringComparer.OrdinalIgnoreCase);
+
+          if (spParamNames.Contains("M_Name"))
+            appendSysParam("M_Name", _meliasoftData.UserName ?? "MLS");
+
+          if (spParamNames.Contains("M_Language"))
+            appendSysParam("M_Language", "VN");
+
+          if (spParamNames.Contains("M_Ma_Dvcs") || spParamNames.Contains("M_MaDvcs"))
+            appendSysParam("M_Ma_Dvcs", ma_DVCS ?? "A01");
+
+          if (spParamNames.Contains("M_Log_Computer"))
+            appendSysParam("M_Log_Computer", logComputer ?? "");
+        }
 
         try
         {

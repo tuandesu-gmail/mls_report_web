@@ -1,4 +1,4 @@
-﻿using Meliasoft.Data;
+using Meliasoft.Data;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -164,25 +164,48 @@ namespace Meliasoft.Controllers
     protected string GetOpenKey()
     {
       var user = GetCurrentUser();
-      string openKey = "";
       if (user == null)
       {
         return null;
       }
+
+      var claimUserName = user.Claims.FirstOrDefault(o => o.Type == ClaimTypes.NameIdentifier);
+      bool isBlankUser = claimUserName != null && !string.IsNullOrEmpty(claimUserName.Value) && claimUserName.Value.Contains("_blank_user");
 
       var claim = user.Claims.FirstOrDefault(o => o.Type == ClaimTypes.UserData);
       if (claim == null)
       {
         return null;
       }
-      else
+
+      string userData = claim.Value ?? "";
+      if (string.IsNullOrWhiteSpace(userData))
       {
-        string userData = claim.Value;
-        List<string> stringList = userData.Split(',').ToList();
-        openKey = stringList[1];
+        return "";
       }
 
-      return openKey; // claim.Value;
+      if (isBlankUser)
+      {
+        int lastComma = userData.LastIndexOf(',');
+        if (lastComma >= 0 && lastComma < userData.Length - 1)
+        {
+          string tail = userData.Substring(lastComma + 1).Trim();
+          if (!string.IsNullOrEmpty(tail) && !tail.Contains(";") && !tail.Contains("="))
+          {
+            return tail;
+          }
+        }
+
+        return "";
+      }
+
+      string[] parts = userData.Split(new[] { "," }, StringSplitOptions.None);
+      if (parts.Length >= 2 && parts[1] != null)
+      {
+        return parts[1];
+      }
+
+      return "";
     }
 
     protected string GetSavedConnectionString()
@@ -220,6 +243,15 @@ namespace Meliasoft.Controllers
           if (!String.IsNullOrEmpty(userData) && userData.ToLower().Contains("user id") && userData.ToLower().Contains("password"))
           {
             connStr = userData;
+            int lastComma = userData.LastIndexOf(',');
+            if (lastComma > 0 && lastComma < userData.Length - 1)
+            {
+              string tail = userData.Substring(lastComma + 1).Trim();
+              if (!string.IsNullOrEmpty(tail) && !tail.Contains(";") && !tail.Contains("="))
+              {
+                connStr = userData.Substring(0, lastComma);
+              }
+            }
           }
         }
 
