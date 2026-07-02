@@ -33,6 +33,138 @@ namespace Meliasoft.Controllers
     {
     }
 
+    private static object TryGetDynamicValue(dynamic item, string key)
+    {
+      if (item == null || string.IsNullOrWhiteSpace(key))
+        return null;
+
+      var dict = item as IDictionary<string, object>;
+      if (dict != null)
+      {
+        foreach (var kv in dict)
+        {
+          if (string.Equals(kv.Key, key, StringComparison.OrdinalIgnoreCase))
+            return kv.Value;
+        }
+      }
+
+      return null;
+    }
+
+    private string ResolveSystemVariableValue(string varName)
+    {
+      if (string.IsNullOrWhiteSpace(varName)) return "";
+
+      var normalizedVarName = (varName ?? "").Trim();
+      normalizedVarName = normalizedVarName
+        .Replace("[", "")
+        .Replace("]", "")
+        .Replace("{", "")
+        .Replace("}", "")
+        .Replace("(", "")
+        .Replace(")", "")
+        .Replace("<", "")
+        .Replace(">", "")
+        .Trim();
+      if (string.IsNullOrWhiteSpace(normalizedVarName)) return "";
+
+      try
+      {
+        var functionSqlRow = _meliasoftData.Query(
+            @"SELECT _Function_SQL
+              FROM dbo.UsyRobot_Vars
+              WHERE REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(_Var_Name,
+                        '[',''),']',''),
+                        '{',''),'}',''),
+                        '(',''),')',''),
+                        '<',''),'>','') = @VarName",
+            CommandType.Text,
+            new[] { "@VarName" },
+            new object[] { normalizedVarName }
+        ).FirstOrDefault();
+
+        var functionSql = Convert.ToString(TryGetDynamicValue(functionSqlRow, "_Function_SQL"));
+        if (string.IsNullOrWhiteSpace(functionSql)) return "";
+
+        var result = _meliasoftData.Query(
+            $"SELECT {functionSql} AS Value",
+            CommandType.Text
+        ).FirstOrDefault();
+
+        return Convert.ToString(TryGetDynamicValue(result, "Value")) ?? "";
+      }
+      catch
+      {
+        return "";
+      }
+    }
+
+    private object ResolveParameterDefaultValue(string inputType, object rawDefaultValue)
+    {
+      if (rawDefaultValue == null || rawDefaultValue == DBNull.Value)
+        return null;
+
+      var resolved = Convert.ToString(rawDefaultValue)?.Trim() ?? "";
+      if (string.IsNullOrEmpty(resolved))
+        return null;
+
+      if (resolved.Length > 2
+        && ("[{(<".IndexOf(resolved[0]) >= 0)
+        && ("]})>".IndexOf(resolved[resolved.Length - 1]) >= 0))
+      {
+        resolved = ResolveSystemVariableValue(resolved);
+      }
+
+      if (string.Equals(inputType, "CheckBox", StringComparison.OrdinalIgnoreCase))
+      {
+        if (resolved == "1") return true;
+        if (resolved == "0") return false;
+
+        bool boolValue;
+        if (bool.TryParse(resolved, out boolValue))
+          return boolValue;
+
+        return false;
+      }
+
+      if (string.Equals(inputType, "DateTimePicker", StringComparison.OrdinalIgnoreCase))
+      {
+        var acceptedDateFormats = new[]
+        {
+          "dd/MM/yyyy",
+          "d/M/yyyy",
+          "yyyy/MM/dd",
+          "yyyy/M/d",
+          "dd-MM-yyyy",
+          "d-M-yyyy",
+          "yyyy-MM-dd",
+          "yyyy-M-d"
+        };
+
+        DateTime parsedDate;
+        if (DateTime.TryParseExact(
+            resolved,
+            acceptedDateFormats,
+            new CultureInfo("vi-VN"),
+            DateTimeStyles.None,
+            out parsedDate))
+          return parsedDate;
+
+        if (DateTime.TryParseExact(
+            resolved,
+            acceptedDateFormats,
+            CultureInfo.InvariantCulture,
+            DateTimeStyles.None,
+            out parsedDate))
+          return parsedDate;
+
+        if (DateTime.TryParse(resolved, new CultureInfo("vi-VN"), DateTimeStyles.None, out parsedDate))
+          return parsedDate;
+      }
+
+      return resolved;
+    }
+
     public ActionResult Home(int report_id = 0)
     {
       ViewBag.ReportId = report_id;
@@ -568,6 +700,8 @@ namespace Meliasoft.Controllers
         {
           string name = item.Name.Replace("@", "");
           object value = null;
+          string inputType = "";
+          object defaultValue = TryGetDynamicValue(item, "DefaultValue");
 
 
           //string cookieKey = "meliasoft_param_" + id + "_" + name;
@@ -593,7 +727,7 @@ namespace Meliasoft.Controllers
           else
           {
 
-            string inputType = item.InputType.ToString();
+            inputType = item.InputType.ToString();
             string itemTitle = item.Title;
             //if (IsFromAIweb())
             //  itemTitle = item.Title_VN;
@@ -626,7 +760,7 @@ namespace Meliasoft.Controllers
                 //        value = now;
                 //        break;
                 //}
-                value = "";
+                value = ResolveParameterDefaultValue(inputType, defaultValue);
                 break;
               case "TextBox":
                 param.AppendFormat(@"<div class=""col-lg-6 col-md-6 col-sm-6 col-xs-12 form-group"">
@@ -636,7 +770,7 @@ namespace Meliasoft.Controllers
                             </div>
                         </div>", itemTitle, name, index);
 
-                value = string.Empty; ; // cookieValue; // string.Empty;
+                value = ResolveParameterDefaultValue(inputType, defaultValue) ?? string.Empty; // cookieValue; // string.Empty;
                 break;
               case "Lookup":
                 param.AppendFormat(@"<div class=""col-lg-6 col-md-6 col-sm-6 col-xs-12 form-group"">
@@ -653,7 +787,7 @@ namespace Meliasoft.Controllers
                             </div>
                         </div>", itemTitle, name, index, item.Id);
 
-                value = string.Empty;
+                value = ResolveParameterDefaultValue(inputType, defaultValue) ?? string.Empty;
                 break;
               case "CheckBox":
                 var guid = Guid.NewGuid().ToString();
@@ -682,7 +816,7 @@ namespace Meliasoft.Controllers
                             </div>", itemTitle, name, index, guid);
 
 
-                value = false; // cookieValue; // 
+                value = ResolveParameterDefaultValue(inputType, defaultValue) ?? false; // cookieValue; // 
                 break;
               //                    case "ComboBox":
               //                        param.AppendFormat(@"<div class=""col-lg-6 col-md-6 col-sm-6 col-xs-12 form-group"">
@@ -701,7 +835,7 @@ namespace Meliasoft.Controllers
                 if (name.ToUpper().Contains("OPEN_KEY"))
                   value = this.GetOpenKey();
                 else
-                  value = string.Empty;
+                  value = ResolveParameterDefaultValue(inputType, defaultValue) ?? string.Empty;
                 break;
             }
           }
@@ -1479,17 +1613,56 @@ namespace Meliasoft.Controllers
         }
         else
         {
-          // Giữ nguyên SQL động cũ cho trường hợp khác
           var commandText = @"
-                IF EXISTS(SELECT TOP 1 1 FROM Web_Report_Sec WHERE Email = @Email)
-                    SELECT * FROM Web_Report
-                        INNER JOIN Web_Report_Sec ON Web_Report.Id = Web_Report_Sec.Id_Report
-                        WHERE Web_Report_Sec.Email = @Email AND Web_Report.Visible = 1
-                        ORDER BY Name
+                DECLARE @sql NVARCHAR(MAX);
+
+                IF COL_LENGTH('dbo.Web_Report', 'Name') IS NOT NULL
+                BEGIN
+                    SET @sql = N'
+                        IF EXISTS(SELECT TOP 1 1 FROM Web_Report_Sec WHERE Email = @Email)
+                            SELECT WR.*
+                                FROM Web_Report WR
+                                INNER JOIN Web_Report_Sec WRS ON WR.Id = WRS.Id_Report
+                                WHERE WRS.Email = @Email AND WR.Visible = 1
+                                ORDER BY WR.Name
+                        ELSE
+                            SELECT WR.*
+                                FROM Web_Report WR
+                                WHERE WR.Visible = 1
+                                ORDER BY WR.Name';
+                END
+                ELSE IF COL_LENGTH('dbo.Web_Report', 'Title_VN') IS NOT NULL
+                BEGIN
+                    SET @sql = N'
+                        IF EXISTS(SELECT TOP 1 1 FROM Web_Report_Sec WHERE Email = @Email)
+                            SELECT WR.Title_VN AS Name, WR.*
+                                FROM Web_Report WR
+                                INNER JOIN Web_Report_Sec WRS ON WR.Id = WRS.Id_Report
+                                WHERE WRS.Email = @Email AND WR.Visible = 1
+                                ORDER BY ISNULL(WR.Stt, WR.Id), WR.Title_VN
+                        ELSE
+                            SELECT WR.Title_VN AS Name, WR.*
+                                FROM Web_Report WR
+                                WHERE WR.Visible = 1
+                                ORDER BY ISNULL(WR.Stt, WR.Id), WR.Title_VN';
+                END
                 ELSE
-                    SELECT * FROM Web_Report
-                        WHERE Web_Report.Visible = 1
-                        ORDER BY Name";
+                BEGIN
+                    SET @sql = N'
+                        IF EXISTS(SELECT TOP 1 1 FROM Web_Report_Sec WHERE Email = @Email)
+                            SELECT CAST(WR.Id AS NVARCHAR(50)) AS Name, WR.*
+                                FROM Web_Report WR
+                                INNER JOIN Web_Report_Sec WRS ON WR.Id = WRS.Id_Report
+                                WHERE WRS.Email = @Email AND WR.Visible = 1
+                                ORDER BY WR.Id
+                        ELSE
+                            SELECT CAST(WR.Id AS NVARCHAR(50)) AS Name, WR.*
+                                FROM Web_Report WR
+                                WHERE WR.Visible = 1
+                                ORDER BY WR.Id';
+                END
+
+                EXEC sp_executesql @sql, N'@Email NVARCHAR(256)', @Email = @Email;";
 
           result = _meliasoftData.Query(
               commandText,

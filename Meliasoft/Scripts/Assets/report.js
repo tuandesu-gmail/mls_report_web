@@ -21,8 +21,11 @@ app.controller('ctrl', ['$scope', '$q', 'GridService', '$uibModal', '$http', fun
 
   //for Kendo Grid
   $scope.mainGridOptions = {
+    autoBind: false,
     dataSource: {
+      data: [],
       transport: {
+        read: function (options) { options.success([]); },
         //read: "http://localhost:5000/Home/Test",
         dataType: "json"
       }
@@ -85,10 +88,71 @@ app.controller('ctrl', ['$scope', '$q', 'GridService', '$uibModal', '$http', fun
     return [day, month, year].join('/');
   }
 
+  function parseDateLike(s) {
+    if (!s) return null;
+    var t = ("" + s).trim();
+    if (!t) return null;
+
+    var dmy = /^(\d{1,2})[\/-](\d{1,2})[\/-](\d{4})/.exec(t);
+    if (dmy) {
+      var day = parseInt(dmy[1], 10);
+      var month = parseInt(dmy[2], 10);
+      var year = parseInt(dmy[3], 10);
+      var d = new Date(year, month - 1, day);
+      return isNaN(d.getTime()) ? null : d;
+    }
+
+    var ymd = /^(\d{4})[\/-](\d{1,2})[\/-](\d{1,2})/.exec(t);
+    if (ymd) {
+      var year2 = parseInt(ymd[1], 10);
+      var month2 = parseInt(ymd[2], 10);
+      var day2 = parseInt(ymd[3], 10);
+      var d2 = new Date(year2, month2 - 1, day2);
+      return isNaN(d2.getTime()) ? null : d2;
+    }
+
+    return null;
+  }
+
+  function isValidDate(d) {
+    return d instanceof Date && !isNaN(d.getTime());
+  }
+
+  function parseDateLike(s) {
+    if (!s) return null;
+    var t = ("" + s).trim();
+    if (!t) return null;
+
+    var dmy = /^(\d{1,2})[\/-](\d{1,2})[\/-](\d{4})/.exec(t);
+    if (dmy) {
+      var day = parseInt(dmy[1], 10);
+      var month = parseInt(dmy[2], 10);
+      var year = parseInt(dmy[3], 10);
+      var d = new Date(year, month - 1, day);
+      if (!isValidDate(d)) return null;
+      if (d.getFullYear() !== year || (d.getMonth() + 1) !== month || d.getDate() !== day) return null;
+      return d;
+    }
+
+    var ymd = /^(\d{4})[\/-](\d{1,2})[\/-](\d{1,2})/.exec(t);
+    if (ymd) {
+      var year2 = parseInt(ymd[1], 10);
+      var month2 = parseInt(ymd[2], 10);
+      var day2 = parseInt(ymd[3], 10);
+      var d2 = new Date(year2, month2 - 1, day2);
+      if (!isValidDate(d2)) return null;
+      if (d2.getFullYear() !== year2 || (d2.getMonth() + 1) !== month2 || d2.getDate() !== day2) return null;
+      return d2;
+    }
+
+    return null;
+  }
+
   angular.forEach($scope.param, function (value, index) {
     if (value.Value && value.Value.indexOf("/Date(") == 0) {//if (value.Value && value.Value.startsWith("/Date(")) {
       //$scope.param[index].Value = new Date(parseInt(value.Value.substr(6)));
-      var d = new Date(parseInt(value.Value.substr(6)));
+      var millis = parseInt(value.Value.substr(6), 10);
+      var d = isNaN(millis) ? null : new Date(millis);
 
       //var month = '' + (d.getMonth() + 1),
       //    day = '' + d.getDate(),
@@ -97,7 +161,21 @@ app.controller('ctrl', ['$scope', '$q', 'GridService', '$uibModal', '$http', fun
       //if (month.length < 2) month = '0' + month;
       //if (day.length < 2) day = '0' + day;
 
-      $scope.param[index].Value = dateFormatDMY(d); // [day, month, year].join('/');
+      if (d && isValidDate(d)) {
+        $scope.param[index].Value = d;
+      } else {
+        $scope.param[index].Value = null;
+      }
+    } else if (value && typeof value.Value === "string") {
+      var name = (value.Name || "").toUpperCase();
+      if (name.indexOf("NGAY") >= 0 || name.indexOf("DATE") >= 0) {
+        var parsed = parseDateLike(value.Value);
+        if (parsed) {
+          $scope.param[index].Value = parsed;
+        } else {
+          $scope.param[index].Value = null;
+        }
+      }
     }
 
     //var val = $.cookie('meliasoft_param_' + id + '_' + value.Name);
@@ -176,7 +254,7 @@ app.controller('ctrl', ['$scope', '$q', 'GridService', '$uibModal', '$http', fun
   $scope.getData = function () {
     $scope.waiting = true;
 
-    var cloned = [].concat($scope.param);
+    var cloned = angular.copy($scope.param);
     angular.forEach(cloned, function (value, index) {
       if (typeof (value.Value) === "undefined") {
         value.Value = "";
