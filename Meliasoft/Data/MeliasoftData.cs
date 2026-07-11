@@ -147,12 +147,16 @@ namespace Meliasoft.Data
     {
       get
       {
+        
         if (!string.IsNullOrEmpty(SavedConnString))
           return SavedConnString;
 
         if (!string.IsNullOrEmpty(UserName))
         {
-     
+
+          // TODO: just for test
+          //return "Server=171.244.35.233,1599;Database=Ms2026_SUNTEX_NEW;User Id=Meliasoft_HDDT;Password=60145";
+
           string connectionString = ConfigurationManager.ConnectionStrings["Meliasoft"].ConnectionString;
           using (SqlConnection connection = new SqlConnection(connectionString))
           {

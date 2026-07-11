@@ -1,4 +1,4 @@
-app.controller('ctrl', ['$scope', '$q', 'GridService', '$uibModal', '$http', function ($scope, $q, GridService, $uibModal, $http) {
+app.controller('ctrl', ['$scope', '$q', 'GridService', '$uibModal', '$http', '$timeout', function ($scope, $q, GridService, $uibModal, $http, $timeout) {
   //for DatePicker
   $scope.dateOptions = {
     formatYear: 'yy',
@@ -76,6 +76,11 @@ app.controller('ctrl', ['$scope', '$q', 'GridService', '$uibModal', '$http', fun
   //for Kendo Grid
 
   $scope.param = param;
+  var debugFilter = (window.location.search || "").toLowerCase().indexOf("debugfilter=1") >= 0;
+  function debugLog() {
+    if (!debugFilter || !window.console || !console.log) return;
+    try { console.log.apply(console, arguments); } catch (e) { }
+  }
 
   function dateFormatDMY(inputDate) {
     var month = '' + (inputDate.getMonth() + 1),
@@ -118,6 +123,58 @@ app.controller('ctrl', ['$scope', '$q', 'GridService', '$uibModal', '$http', fun
     return d instanceof Date && !isNaN(d.getTime());
   }
 
+  function findLookupRoot(index) {
+    try {
+      var sel = 'angucomplete-alt[selected-object*="param[' + index + '].Value"]';
+      return document.querySelector(sel);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function initLookupValue(index, name, initVal, attempt) {
+    var tryCount = attempt || 0;
+
+    var rootEl = findLookupRoot(index) || document.getElementById('lookup' + index);
+    var rootId = rootEl ? (rootEl.getAttribute('id') || ('lookup' + index)) : ('lookup' + index);
+
+    var el = null;
+    if (rootEl && rootEl.querySelector) {
+      el = rootEl.querySelector('input');
+    }
+    if (!el) {
+      var elId = rootId + '_value';
+      el = document.getElementById(elId);
+    }
+
+    if (!rootEl && tryCount === 0) {
+      debugLog("Lookup root not found", { id: rootId, name: name, value: initVal });
+    }
+
+    if (rootEl) {
+      $scope.$broadcast('angucomplete-alt:changeInput', rootId, initVal);
+      debugLog("angucomplete changeInput fired", { id: rootId, name: name, value: initVal, attempt: tryCount });
+    }
+
+    if (el) {
+      $timeout(function () {
+        try {
+          if (el && (!el.value || ("" + el.value).trim() === "")) {
+            var v = initVal && (initVal.Code || initVal.code || initVal.Name || initVal.name);
+            if (typeof v !== "undefined") el.value = v;
+          }
+        } catch (e) { }
+      }, 0);
+      return;
+    }
+
+    if (tryCount < 15) {
+      $timeout(function () { initLookupValue(index, name, initVal, tryCount + 1); }, 100);
+    } else {
+      debugLog("Lookup input not found after retries", { id: rootId + "_value", name: name, value: initVal });
+    }
+  }
+
   function parseDateLike(s) {
     if (!s) return null;
     var t = ("" + s).trim();
@@ -149,7 +206,7 @@ app.controller('ctrl', ['$scope', '$q', 'GridService', '$uibModal', '$http', fun
   }
 
   angular.forEach($scope.param, function (value, index) {
-    if (value.Value && value.Value.indexOf("/Date(") == 0) {//if (value.Value && value.Value.startsWith("/Date(")) {
+    if (value && typeof value.Value === "string" && value.Value.indexOf("/Date(") == 0) {
       //$scope.param[index].Value = new Date(parseInt(value.Value.substr(6)));
       var millis = parseInt(value.Value.substr(6), 10);
       var d = isNaN(millis) ? null : new Date(millis);
@@ -166,6 +223,19 @@ app.controller('ctrl', ['$scope', '$q', 'GridService', '$uibModal', '$http', fun
       } else {
         $scope.param[index].Value = null;
       }
+    } else if (value && value.Value && typeof value.Value.title !== "undefined") {
+      var initVal = value.Value;
+      if (initVal && initVal.originalObject && typeof initVal.originalObject === "object" &&
+        (typeof initVal.originalObject.Code !== "undefined" || typeof initVal.originalObject.Name !== "undefined")) {
+        initVal = initVal.originalObject;
+        $scope.param[index].Value = initVal;
+      } else if (initVal && typeof initVal.title !== "undefined") {
+        initVal = { Code: initVal.title, Name: initVal.title };
+        $scope.param[index].Value = initVal;
+      }
+
+      debugLog("Filter default (lookup.title)", { index: index, name: value.Name, value: value.Value, init: initVal });
+      initLookupValue(index, value.Name, initVal, 0);
     } else if (value && typeof value.Value === "string") {
       var name = (value.Name || "").toUpperCase();
       if (name.indexOf("NGAY") >= 0 || name.indexOf("DATE") >= 0) {
@@ -176,6 +246,9 @@ app.controller('ctrl', ['$scope', '$q', 'GridService', '$uibModal', '$http', fun
           $scope.param[index].Value = null;
         }
       }
+    } else if (value && value.Value && typeof value.Value === "object" && (typeof value.Value.Code !== "undefined" || typeof value.Value.code !== "undefined")) {
+      debugLog("Filter default (lookup.object)", { index: index, name: value.Name, value: value.Value });
+      initLookupValue(index, value.Name, value.Value, 0);
     }
 
     //var val = $.cookie('meliasoft_param_' + id + '_' + value.Name);
@@ -260,6 +333,23 @@ app.controller('ctrl', ['$scope', '$q', 'GridService', '$uibModal', '$http', fun
         value.Value = "";
       } else if (value.Value && typeof (value.Value.title) !== "undefined") {
         value.Value = value.Value.title;
+      } else if (value.Value && typeof (value.Value.originalObject) !== "undefined") {
+        var oo = value.Value.originalObject;
+        if (oo && typeof oo === "object") {
+          if (typeof oo.Code !== "undefined") value.Value = oo.Code;
+          else if (typeof oo.code !== "undefined") value.Value = oo.code;
+          else if (typeof oo.Id !== "undefined") value.Value = oo.Id;
+          else if (typeof oo.id !== "undefined") value.Value = oo.id;
+          else value.Value = "";
+        } else {
+          value.Value = "";
+        }
+      } else if (value.Value && typeof value.Value === "object") {
+        if (typeof value.Value.Code !== "undefined") value.Value = value.Value.Code;
+        else if (typeof value.Value.code !== "undefined") value.Value = value.Value.code;
+        else if (typeof value.Value.Id !== "undefined") value.Value = value.Value.Id;
+        else if (typeof value.Value.id !== "undefined") value.Value = value.Value.id;
+        else value.Value = "";
       } else {
         if (angular.isDate(value.Value)) {
           //var parsedDate = Date.parse(date);

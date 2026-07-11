@@ -162,6 +162,16 @@ namespace Meliasoft.Controllers
           return parsedDate;
       }
 
+      if (string.Equals(inputType, "Lookup", StringComparison.OrdinalIgnoreCase))
+      {
+        var code = resolved;
+        return new Dictionary<string, object>
+        {
+          { "Code", code },
+          { "Name", code }
+        };
+      }
+
       return resolved;
     }
 
@@ -778,6 +788,7 @@ namespace Meliasoft.Controllers
                             <div class=""col-lg-9 col-md-9 col-sm-8 col-xs-12"">
                                 <angucomplete-alt id=""lookup{3}"" pause=""100""
                                     selected-object=""param[{2}].Value""
+                                    initial-value=""param[{2}].Value""
                                     remote-api-handler=""searchAPI""
                                     search-fields=""Code,Name""
                                     title-field=""Code""
