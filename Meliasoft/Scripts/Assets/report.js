@@ -331,6 +331,15 @@ app.controller('ctrl', ['$scope', '$q', 'GridService', '$uibModal', '$http', '$t
     angular.forEach(cloned, function (value, index) {
       if (typeof (value.Value) === "undefined") {
         value.Value = "";
+      } else if (angular.isDate(value.Value)) {
+        // Keep Date params before the generic object branch, otherwise Date gets treated
+        // as a plain object and is accidentally blanked out.
+        var options = {
+          year: "numeric",
+          month: "2-digit",
+          day: "numeric"
+        };
+        value.Value = value.Value.toLocaleString("vi", options);
       } else if (value.Value && typeof (value.Value.title) !== "undefined") {
         value.Value = value.Value.title;
       } else if (value.Value && typeof (value.Value.originalObject) !== "undefined") {
@@ -350,18 +359,6 @@ app.controller('ctrl', ['$scope', '$q', 'GridService', '$uibModal', '$http', '$t
         else if (typeof value.Value.Id !== "undefined") value.Value = value.Value.Id;
         else if (typeof value.Value.id !== "undefined") value.Value = value.Value.id;
         else value.Value = "";
-      } else {
-        if (angular.isDate(value.Value)) {
-          //var parsedDate = Date.parse(date);
-          //var _date = $filter('date')(value.Value, 'dd/MM/yyyy');
-          var options = {
-            year: "numeric",
-            month: "2-digit",
-            day: "numeric"
-          };
-          value.Value = value.Value.toLocaleString("vi", options);
-        }
-
       }
     });
 
