@@ -82,6 +82,26 @@ app.controller('ctrl', ['$scope', '$q', 'GridService', '$uibModal', '$http', '$t
     try { console.log.apply(console, arguments); } catch (e) { }
   }
 
+  function findLookupInput(index) {
+    var rootEl = findLookupRoot(index);
+    if (!rootEl) return null;
+    if (rootEl.querySelector) {
+      var el = rootEl.querySelector('input[type="text"],input:not([type])');
+      if (el) return el;
+    }
+    var rootId = rootEl.getAttribute('id');
+    return rootId ? document.getElementById(rootId + "_value") : null;
+  }
+
+  function findDateInput(index) {
+    try {
+      var sel = 'input.datepicker[ng-model*="param[' + index + '].Value"]';
+      return document.querySelector(sel);
+    } catch (e) {
+      return null;
+    }
+  }
+
   function dateFormatDMY(inputDate) {
     var month = '' + (inputDate.getMonth() + 1),
       day = '' + inputDate.getDate(),
@@ -121,6 +141,17 @@ app.controller('ctrl', ['$scope', '$q', 'GridService', '$uibModal', '$http', '$t
 
   function isValidDate(d) {
     return d instanceof Date && !isNaN(d.getTime());
+  }
+
+  function lookupHasSelection(value) {
+    if (value == null) return false;
+    if (typeof value === "object" &&
+      (typeof value.Code !== "undefined" || typeof value.code !== "undefined" ||
+        typeof value.Id !== "undefined" || typeof value.id !== "undefined" ||
+        typeof value.title !== "undefined" || typeof value.originalObject !== "undefined")) {
+      return true;
+    }
+    return false;
   }
 
   function findLookupRoot(index) {
@@ -329,17 +360,39 @@ app.controller('ctrl', ['$scope', '$q', 'GridService', '$uibModal', '$http', '$t
 
     var cloned = angular.copy($scope.param);
     angular.forEach(cloned, function (value, index) {
+      var lookupInput = findLookupInput(index);
+      if (lookupInput && !lookupHasSelection(value.Value)) {
+        var typed = (lookupInput.value || "").trim();
+        if (typed !== "") {
+          value.Value = typed;
+        }
+      }
+      var dateInput = findDateInput(index);
+      if (dateInput && !angular.isDate(value.Value)) {
+        var dateText = (dateInput.value || "").trim();
+        if (dateText !== "") {
+          var parsed = parseDateLike(dateText);
+          if (parsed) {
+            value.Value = parsed;
+          } else {
+            if (value.Value == null || (typeof value.Value === "string" && ("" + value.Value).trim() === "")) {
+              value.Value = dateText;
+            }
+          }
+        }
+      }
       if (typeof (value.Value) === "undefined") {
         value.Value = "";
       } else if (angular.isDate(value.Value)) {
-        // Keep Date params before the generic object branch, otherwise Date gets treated
-        // as a plain object and is accidentally blanked out.
-        var options = {
-          year: "numeric",
-          month: "2-digit",
-          day: "numeric"
-        };
-        value.Value = value.Value.toLocaleString("vi", options);
+        value.Value = dateFormatDMY(value.Value);
+      } else if (typeof value.Value === "string") {
+        var s = ("" + value.Value).trim();
+        if (s !== "") {
+          var parsed2 = parseDateLike(s);
+          if (parsed2) {
+            value.Value = dateFormatDMY(parsed2);
+          }
+        }
       } else if (value.Value && typeof (value.Value.title) !== "undefined") {
         value.Value = value.Value.title;
       } else if (value.Value && typeof (value.Value.originalObject) !== "undefined") {
